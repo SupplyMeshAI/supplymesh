@@ -41,7 +41,7 @@ export default async function BuyerDashboardPage() {
     <>
       <div style={{ marginBottom: "2rem" }}>
         <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#0f172a" }}>
-          Welcome back, {firstName} 👋
+          Welcome back, {firstName}
         </h1>
         <p style={{ color: "#64748b", marginTop: "0.25rem", fontSize: "0.875rem" }}>
           {company?.name} · {company?.city}, {company?.state_region}

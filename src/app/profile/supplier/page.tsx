@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2, Check, Building2, Users, Zap, Award, ChevronDown } from "lucide-react";
 
@@ -209,8 +211,8 @@ export default function SupplierProfilePage() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <Loader2 style={{ width: "1.5rem", height: "1.5rem", color: "#0d9488" }} className="animate-spin" />
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f0f4f8" }}>
+      <Loader2 style={{ width: "1.5rem", height: "1.5rem", color: "var(--brand)" }} className="animate-spin" />
     </div>
   );
 
@@ -223,23 +225,34 @@ export default function SupplierProfilePage() {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f9fafb" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#f0f4f8" }}>
 
       {/* Nav */}
       <header style={{
-        backgroundColor: "white", borderBottom: "1px solid #e5e7eb",
-        padding: "0.75rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between",
+        position: "sticky", top: 0, zIndex: 50,
+        backgroundColor: "rgba(20,42,64,0.85)",
+        backdropFilter: "blur(12px)",
+        borderBottom: "1px solid rgba(255,255,255,0.1)",
+        padding: "0 1.5rem",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        height: "4rem",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <div style={{ width: "1.75rem", height: "1.75rem", borderRadius: "0.5rem", backgroundColor: "#0d9488", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ color: "white", fontWeight: "bold", fontSize: "0.75rem" }}>S</span>
-          </div>
-          <span style={{ fontWeight: "bold", color: "#111827" }}>SupplyMesh</span>
-        </div>
+        <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+          <Image
+            src="/brand/logo-full-white.svg"
+            alt="SupplyMesh"
+            width={160}
+            height={38}
+            style={{ height: "2.25rem", width: "auto" }}
+            priority
+          />
+        </Link>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <button
             onClick={() => router.push("/dashboard/supplier")}
-            style={{ fontSize: "0.875rem", color: "#6b7280", background: "none", border: "none", cursor: "pointer" }}
+            style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.75)", background: "none", border: "none", cursor: "pointer", transition: "color 0.15s" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "white")}
+            onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
           >
             ← Dashboard
           </button>
@@ -249,7 +262,8 @@ export default function SupplierProfilePage() {
             style={{
               display: "inline-flex", alignItems: "center", gap: "0.5rem",
               padding: "0.5rem 1rem", borderRadius: "0.5rem", fontSize: "0.875rem",
-              fontWeight: 600, color: "white", backgroundColor: saved ? "#059669" : "#0d9488",
+              fontWeight: 600, color: saved ? "white" : "var(--brand)",
+              backgroundColor: saved ? "#059669" : "white",
               border: "none", cursor: "pointer", transition: "background-color 0.2s",
             }}
           >
@@ -264,7 +278,7 @@ export default function SupplierProfilePage() {
 
         {/* Sidebar nav */}
         <aside>
-          <div style={{ backgroundColor: "white", borderRadius: "0.75rem", border: "1px solid #e5e7eb", overflow: "hidden" }}>
+          <div style={{ backgroundColor: "white", borderRadius: "0.75rem", border: "1px solid #e2e8f0", overflow: "hidden" }}>
             {sections.map((s) => (
               <button
                 key={s.id}
@@ -272,9 +286,9 @@ export default function SupplierProfilePage() {
                 style={{
                   width: "100%", display: "flex", alignItems: "center", gap: "0.625rem",
                   padding: "0.75rem 1rem", fontSize: "0.875rem", fontWeight: 500,
-                  background: activeSection === s.id ? "#f0fdfa" : "none",
-                  color: activeSection === s.id ? "#0d9488" : "#6b7280",
-                  border: "none", borderLeft: activeSection === s.id ? "2px solid #0d9488" : "2px solid transparent",
+                  background: activeSection === s.id ? "var(--brand-light)" : "none",
+                  color: activeSection === s.id ? "var(--brand)" : "#64748b",
+                  border: "none", borderLeft: activeSection === s.id ? "2px solid var(--brand)" : "2px solid transparent",
                   cursor: "pointer", textAlign: "left", transition: "all 0.15s",
                 }}
               >
@@ -286,12 +300,12 @@ export default function SupplierProfilePage() {
 
         {/* Main content */}
         <main>
-          <div style={{ backgroundColor: "white", borderRadius: "0.75rem", border: "1px solid #e5e7eb", padding: "1.5rem" }}>
+          <div style={{ backgroundColor: "white", borderRadius: "0.75rem", border: "1px solid #e2e8f0", padding: "1.5rem" }}>
 
             {/* COMPANY SECTION */}
             {activeSection === "company" && (
               <div>
-                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#111827", marginBottom: "1.25rem" }}>Company Information</h2>
+                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#0f172a", marginBottom: "1.25rem" }}>Company Information</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                     <div>
@@ -339,9 +353,9 @@ export default function SupplierProfilePage() {
                         {COMPANY_SIZES.map(s => (
                           <button key={s} type="button" onClick={() => setCompanySize(s)} style={{
                             padding: "0.375rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.8rem", fontWeight: 500,
-                            border: companySize === s ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                            backgroundColor: companySize === s ? "#f0fdfa" : "white",
-                            color: companySize === s ? "#0f766e" : "#4b5563", cursor: "pointer",
+                            border: companySize === s ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                            backgroundColor: companySize === s ? "var(--brand-light)" : "white",
+                            color: companySize === s ? "var(--brand)" : "#4b5563", cursor: "pointer",
                           }}>{s} employees</button>
                         ))}
                       </div>
@@ -352,9 +366,9 @@ export default function SupplierProfilePage() {
                         {YEARS_IN_BUSINESS.map(y => (
                           <button key={y} type="button" onClick={() => setYearsInBusiness(y)} style={{
                             padding: "0.375rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.8rem", fontWeight: 500,
-                            border: yearsInBusiness === y ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                            backgroundColor: yearsInBusiness === y ? "#f0fdfa" : "white",
-                            color: yearsInBusiness === y ? "#0f766e" : "#4b5563", cursor: "pointer",
+                            border: yearsInBusiness === y ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                            backgroundColor: yearsInBusiness === y ? "var(--brand-light)" : "white",
+                            color: yearsInBusiness === y ? "var(--brand)" : "#4b5563", cursor: "pointer",
                           }}>{y} years</button>
                         ))}
                       </div>
@@ -370,9 +384,9 @@ export default function SupplierProfilePage() {
                       ].map(v => (
                         <button key={v.value} type="button" onClick={() => setVisibility(v.value)} style={{
                           flex: 1, padding: "0.625rem", borderRadius: "0.5rem", fontSize: "0.8rem",
-                          border: visibility === v.value ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: visibility === v.value ? "#f0fdfa" : "white",
-                          color: visibility === v.value ? "#0f766e" : "#4b5563", cursor: "pointer", textAlign: "center",
+                          border: visibility === v.value ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: visibility === v.value ? "var(--brand-light)" : "white",
+                          color: visibility === v.value ? "var(--brand)" : "#4b5563", cursor: "pointer", textAlign: "center",
                         }}>
                           <div style={{ fontWeight: 600 }}>{v.label}</div>
                           <div style={{ fontSize: "0.7rem", opacity: 0.7, marginTop: "0.2rem" }}>{v.desc}</div>
@@ -386,9 +400,9 @@ export default function SupplierProfilePage() {
                       {INDUSTRIES.map(ind => (
                         <button key={ind} type="button" onClick={() => toggle(industriesServed, setIndustriesServed, ind)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "9999px", fontSize: "0.8rem", fontWeight: 500,
-                          border: industriesServed.includes(ind) ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: industriesServed.includes(ind) ? "#f0fdfa" : "white",
-                          color: industriesServed.includes(ind) ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: industriesServed.includes(ind) ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: industriesServed.includes(ind) ? "var(--brand-light)" : "white",
+                          color: industriesServed.includes(ind) ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{ind}</button>
                       ))}
                     </div>
@@ -399,9 +413,9 @@ export default function SupplierProfilePage() {
                       {PAYMENT_TERMS.map(p => (
                         <button key={p.value} type="button" onClick={() => setPaymentTerms(p.value)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.8rem", fontWeight: 500,
-                          border: paymentTerms === p.value ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: paymentTerms === p.value ? "#f0fdfa" : "white",
-                          color: paymentTerms === p.value ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: paymentTerms === p.value ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: paymentTerms === p.value ? "var(--brand-light)" : "white",
+                          color: paymentTerms === p.value ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{p.label}</button>
                       ))}
                     </div>
@@ -413,7 +427,7 @@ export default function SupplierProfilePage() {
             {/* CONTACT SECTION */}
             {activeSection === "contact" && (
               <div>
-                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#111827", marginBottom: "1.25rem" }}>Primary Contact</h2>
+                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#0f172a", marginBottom: "1.25rem" }}>Primary Contact</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                     <div>
@@ -442,7 +456,7 @@ export default function SupplierProfilePage() {
             {/* CAPABILITIES SECTION */}
             {activeSection === "capabilities" && (
               <div>
-                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#111827", marginBottom: "1.25rem" }}>Capabilities</h2>
+                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#0f172a", marginBottom: "1.25rem" }}>Capabilities</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                   <div>
                     <label className="label">Manufacturing processes *</label>
@@ -453,14 +467,14 @@ export default function SupplierProfilePage() {
                           <button key={p.value} type="button" onClick={() => toggle(processes, setProcesses, p.value)} style={{
                             display: "flex", alignItems: "center", gap: "0.5rem",
                             padding: "0.5rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.8rem",
-                            border: selected ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                            backgroundColor: selected ? "#f0fdfa" : "white",
-                            color: selected ? "#0f766e" : "#4b5563", cursor: "pointer", textAlign: "left",
+                            border: selected ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                            backgroundColor: selected ? "var(--brand-light)" : "white",
+                            color: selected ? "var(--brand)" : "#4b5563", cursor: "pointer", textAlign: "left",
                           }}>
                             <div style={{
                               width: "1rem", height: "1rem", borderRadius: "0.25rem", flexShrink: 0,
                               display: "flex", alignItems: "center", justifyContent: "center",
-                              backgroundColor: selected ? "#0d9488" : "transparent",
+                              backgroundColor: selected ? "var(--brand)" : "transparent",
                               border: selected ? "none" : "1px solid #d1d5db",
                             }}>
                               {selected && <Check style={{ width: "0.75rem", height: "0.75rem", color: "white" }} />}
@@ -477,9 +491,9 @@ export default function SupplierProfilePage() {
                       {MATERIALS.map(m => (
                         <button key={m} type="button" onClick={() => toggle(materials, setMaterials, m)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "9999px", fontSize: "0.8rem", fontWeight: 500,
-                          border: materials.includes(m) ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: materials.includes(m) ? "#f0fdfa" : "white",
-                          color: materials.includes(m) ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: materials.includes(m) ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: materials.includes(m) ? "var(--brand-light)" : "white",
+                          color: materials.includes(m) ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{m}</button>
                       ))}
                     </div>
@@ -495,7 +509,7 @@ export default function SupplierProfilePage() {
             {/* QUALITY SECTION */}
             {activeSection === "quality" && (
               <div>
-                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#111827", marginBottom: "1.25rem" }}>Quality & Compliance</h2>
+                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#0f172a", marginBottom: "1.25rem" }}>Quality & Compliance</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                   <div>
                     <label className="label">Certifications</label>
@@ -503,9 +517,9 @@ export default function SupplierProfilePage() {
                       {CERTIFICATIONS.map(c => (
                         <button key={c} type="button" onClick={() => toggle(certifications, setCertifications, c)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "9999px", fontSize: "0.8rem", fontWeight: 500,
-                          border: certifications.includes(c) ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: certifications.includes(c) ? "#f0fdfa" : "white",
-                          color: certifications.includes(c) ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: certifications.includes(c) ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: certifications.includes(c) ? "var(--brand-light)" : "white",
+                          color: certifications.includes(c) ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{c}</button>
                       ))}
                     </div>
@@ -520,9 +534,9 @@ export default function SupplierProfilePage() {
                       ].map(v => (
                         <button key={v.value} type="button" onClick={() => setItarStatus(v.value)} style={{
                           padding: "0.5rem 1rem", borderRadius: "0.5rem", fontSize: "0.8rem", fontWeight: 500,
-                          border: itarStatus === v.value ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: itarStatus === v.value ? "#f0fdfa" : "white",
-                          color: itarStatus === v.value ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: itarStatus === v.value ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: itarStatus === v.value ? "var(--brand-light)" : "white",
+                          color: itarStatus === v.value ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{v.label}</button>
                       ))}
                     </div>
@@ -534,7 +548,7 @@ export default function SupplierProfilePage() {
             {/* CAPACITY SECTION */}
             {activeSection === "capacity" && (
               <div>
-                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#111827", marginBottom: "1.25rem" }}>Capacity & Availability</h2>
+                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#0f172a", marginBottom: "1.25rem" }}>Capacity & Availability</h2>
                 <div>
                   <label className="label">Currently accepting new work?</label>
                   <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.25rem" }}>
@@ -545,9 +559,9 @@ export default function SupplierProfilePage() {
                     ].map(v => (
                       <button key={v.value} type="button" onClick={() => setWorkStatus(v.value)} style={{
                         flex: 1, padding: "0.625rem", borderRadius: "0.5rem", fontSize: "0.8rem", fontWeight: 500,
-                        border: workStatus === v.value ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                        backgroundColor: workStatus === v.value ? "#f0fdfa" : "white",
-                        color: workStatus === v.value ? "#0f766e" : "#4b5563", cursor: "pointer", textAlign: "center",
+                        border: workStatus === v.value ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                        backgroundColor: workStatus === v.value ? "var(--brand-light)" : "white",
+                        color: workStatus === v.value ? "var(--brand)" : "#4b5563", cursor: "pointer", textAlign: "center",
                       }}>{v.label}</button>
                     ))}
                   </div>

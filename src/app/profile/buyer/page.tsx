@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2, Check, Building2, Users, ShoppingCart, Award, FileText } from "lucide-react";
 
@@ -251,8 +253,8 @@ export default function BuyerProfilePage() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <Loader2 style={{ width: "1.5rem", height: "1.5rem", color: "#0d9488" }} className="animate-spin" />
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f0f4f8" }}>
+      <Loader2 style={{ width: "1.5rem", height: "1.5rem", color: "var(--brand)" }} className="animate-spin" />
     </div>
   );
 
@@ -265,23 +267,34 @@ export default function BuyerProfilePage() {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f9fafb" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#f0f4f8" }}>
 
       {/* Nav */}
       <header style={{
-        backgroundColor: "white", borderBottom: "1px solid #e5e7eb",
-        padding: "0.75rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between",
+        position: "sticky", top: 0, zIndex: 50,
+        backgroundColor: "rgba(20,42,64,0.85)",
+        backdropFilter: "blur(12px)",
+        borderBottom: "1px solid rgba(255,255,255,0.1)",
+        padding: "0 1.5rem",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        height: "4rem",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <div style={{ width: "1.75rem", height: "1.75rem", borderRadius: "0.5rem", backgroundColor: "#0d9488", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ color: "white", fontWeight: "bold", fontSize: "0.75rem" }}>S</span>
-          </div>
-          <span style={{ fontWeight: "bold", color: "#111827" }}>SupplyMesh</span>
-        </div>
+        <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+          <Image
+            src="/brand/logo-full-white.svg"
+            alt="SupplyMesh"
+            width={160}
+            height={38}
+            style={{ height: "2.25rem", width: "auto" }}
+            priority
+          />
+        </Link>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <button
             onClick={() => router.push("/dashboard/buyer")}
-            style={{ fontSize: "0.875rem", color: "#6b7280", background: "none", border: "none", cursor: "pointer" }}
+            style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.75)", background: "none", border: "none", cursor: "pointer" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "white")}
+            onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
           >
             ← Dashboard
           </button>
@@ -291,7 +304,8 @@ export default function BuyerProfilePage() {
             style={{
               display: "inline-flex", alignItems: "center", gap: "0.5rem",
               padding: "0.5rem 1rem", borderRadius: "0.5rem", fontSize: "0.875rem",
-              fontWeight: 600, color: "white", backgroundColor: saved ? "#059669" : "#0d9488",
+              fontWeight: 600, color: saved ? "white" : "var(--brand)",
+              backgroundColor: saved ? "#059669" : "white",
               border: "none", cursor: "pointer", transition: "background-color 0.2s",
             }}
           >
@@ -306,7 +320,7 @@ export default function BuyerProfilePage() {
 
         {/* Sidebar */}
         <aside>
-          <div style={{ backgroundColor: "white", borderRadius: "0.75rem", border: "1px solid #e5e7eb", overflow: "hidden" }}>
+          <div style={{ backgroundColor: "white", borderRadius: "0.75rem", border: "1px solid #e2e8f0", overflow: "hidden" }}>
             {sections.map((s) => (
               <button
                 key={s.id}
@@ -314,9 +328,9 @@ export default function BuyerProfilePage() {
                 style={{
                   width: "100%", display: "flex", alignItems: "center", gap: "0.625rem",
                   padding: "0.75rem 1rem", fontSize: "0.875rem", fontWeight: 500,
-                  background: activeSection === s.id ? "#f0fdfa" : "none",
-                  color: activeSection === s.id ? "#0d9488" : "#6b7280",
-                  border: "none", borderLeft: activeSection === s.id ? "2px solid #0d9488" : "2px solid transparent",
+                  background: activeSection === s.id ? "var(--brand-light)" : "none",
+                  color: activeSection === s.id ? "var(--brand)" : "#64748b",
+                  border: "none", borderLeft: activeSection === s.id ? "2px solid var(--brand)" : "2px solid transparent",
                   cursor: "pointer", textAlign: "left", transition: "all 0.15s",
                 }}
               >
@@ -328,12 +342,12 @@ export default function BuyerProfilePage() {
 
         {/* Main content */}
         <main>
-          <div style={{ backgroundColor: "white", borderRadius: "0.75rem", border: "1px solid #e5e7eb", padding: "1.5rem" }}>
+          <div style={{ backgroundColor: "white", borderRadius: "0.75rem", border: "1px solid #e2e8f0", padding: "1.5rem" }}>
 
             {/* COMPANY */}
             {activeSection === "company" && (
               <div>
-                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#111827", marginBottom: "1.25rem" }}>Company Information</h2>
+                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#0f172a", marginBottom: "1.25rem" }}>Company Information</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                     <div>
@@ -380,9 +394,9 @@ export default function BuyerProfilePage() {
                       {BUYER_TYPES.map(t => (
                         <button key={t.value} type="button" onClick={() => setBuyerType(t.value)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.8rem", fontWeight: 500,
-                          border: buyerType === t.value ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: buyerType === t.value ? "#f0fdfa" : "white",
-                          color: buyerType === t.value ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: buyerType === t.value ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: buyerType === t.value ? "var(--brand-light)" : "white",
+                          color: buyerType === t.value ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{t.label}</button>
                       ))}
                     </div>
@@ -397,9 +411,9 @@ export default function BuyerProfilePage() {
                       ].map(v => (
                         <button key={v.value} type="button" onClick={() => setVisibility(v.value)} style={{
                           flex: 1, padding: "0.625rem", borderRadius: "0.5rem", fontSize: "0.8rem",
-                          border: visibility === v.value ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: visibility === v.value ? "#f0fdfa" : "white",
-                          color: visibility === v.value ? "#0f766e" : "#4b5563", cursor: "pointer", textAlign: "center",
+                          border: visibility === v.value ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: visibility === v.value ? "var(--brand-light)" : "white",
+                          color: visibility === v.value ? "var(--brand)" : "#4b5563", cursor: "pointer", textAlign: "center",
                         }}>
                           <div style={{ fontWeight: 600 }}>{v.label}</div>
                           <div style={{ fontSize: "0.7rem", opacity: 0.7, marginTop: "0.2rem" }}>{v.desc}</div>
@@ -413,9 +427,9 @@ export default function BuyerProfilePage() {
                       {INDUSTRIES.map(ind => (
                         <button key={ind} type="button" onClick={() => toggle(industriesBuyingFor, setIndustriesBuyingFor, ind)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "9999px", fontSize: "0.8rem", fontWeight: 500,
-                          border: industriesBuyingFor.includes(ind) ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: industriesBuyingFor.includes(ind) ? "#f0fdfa" : "white",
-                          color: industriesBuyingFor.includes(ind) ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: industriesBuyingFor.includes(ind) ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: industriesBuyingFor.includes(ind) ? "var(--brand-light)" : "white",
+                          color: industriesBuyingFor.includes(ind) ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{ind}</button>
                       ))}
                     </div>
@@ -426,9 +440,9 @@ export default function BuyerProfilePage() {
                       {SPEND_RANGES.map(s => (
                         <button key={s} type="button" onClick={() => setAnnualSpend(s)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.8rem", fontWeight: 500,
-                          border: annualSpend === s ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: annualSpend === s ? "#f0fdfa" : "white",
-                          color: annualSpend === s ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: annualSpend === s ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: annualSpend === s ? "var(--brand-light)" : "white",
+                          color: annualSpend === s ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{s}</button>
                       ))}
                     </div>
@@ -440,10 +454,10 @@ export default function BuyerProfilePage() {
             {/* CONTACTS */}
             {activeSection === "contact" && (
               <div>
-                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#111827", marginBottom: "1.25rem" }}>Contacts</h2>
+                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#0f172a", marginBottom: "1.25rem" }}>Contacts</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                   <div>
-                    <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>Primary Contact</p>
+                    <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>Primary Contact</p>
                     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                         <div>
@@ -467,8 +481,8 @@ export default function BuyerProfilePage() {
                       </div>
                     </div>
                   </div>
-                  <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: "1.25rem" }}>
-                    <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>Secondary Contact (optional)</p>
+                  <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: "1.25rem" }}>
+                    <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>Secondary Contact (optional)</p>
                     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                         <div>
@@ -493,7 +507,7 @@ export default function BuyerProfilePage() {
             {/* SOURCING */}
             {activeSection === "sourcing" && (
               <div>
-                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#111827", marginBottom: "1.25rem" }}>Sourcing Profile</h2>
+                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#0f172a", marginBottom: "1.25rem" }}>Sourcing Profile</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                   <div>
                     <label className="label">Processes you source</label>
@@ -504,14 +518,14 @@ export default function BuyerProfilePage() {
                           <button key={p.value} type="button" onClick={() => toggle(processesSourced, setProcessesSourced, p.value)} style={{
                             display: "flex", alignItems: "center", gap: "0.5rem",
                             padding: "0.5rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.8rem",
-                            border: selected ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                            backgroundColor: selected ? "#f0fdfa" : "white",
-                            color: selected ? "#0f766e" : "#4b5563", cursor: "pointer", textAlign: "left",
+                            border: selected ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                            backgroundColor: selected ? "var(--brand-light)" : "white",
+                            color: selected ? "var(--brand)" : "#4b5563", cursor: "pointer", textAlign: "left",
                           }}>
                             <div style={{
                               width: "1rem", height: "1rem", borderRadius: "0.25rem", flexShrink: 0,
                               display: "flex", alignItems: "center", justifyContent: "center",
-                              backgroundColor: selected ? "#0d9488" : "transparent",
+                              backgroundColor: selected ? "var(--brand)" : "transparent",
                               border: selected ? "none" : "1px solid #d1d5db",
                             }}>
                               {selected && <Check style={{ width: "0.75rem", height: "0.75rem", color: "white" }} />}
@@ -528,9 +542,9 @@ export default function BuyerProfilePage() {
                       {VOLUME_RANGES.map(v => (
                         <button key={v.value} type="button" onClick={() => toggle(volumeRanges, setVolumeRanges, v.value)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "9999px", fontSize: "0.8rem", fontWeight: 500,
-                          border: volumeRanges.includes(v.value) ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: volumeRanges.includes(v.value) ? "#f0fdfa" : "white",
-                          color: volumeRanges.includes(v.value) ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: volumeRanges.includes(v.value) ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: volumeRanges.includes(v.value) ? "var(--brand-light)" : "white",
+                          color: volumeRanges.includes(v.value) ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{v.label}</button>
                       ))}
                     </div>
@@ -541,9 +555,9 @@ export default function BuyerProfilePage() {
                       {ENGAGEMENT_TYPES.map(e => (
                         <button key={e.value} type="button" onClick={() => setEngagementType(e.value)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.8rem", fontWeight: 500,
-                          border: engagementType === e.value ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: engagementType === e.value ? "#f0fdfa" : "white",
-                          color: engagementType === e.value ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: engagementType === e.value ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: engagementType === e.value ? "var(--brand-light)" : "white",
+                          color: engagementType === e.value ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{e.label}</button>
                       ))}
                     </div>
@@ -565,7 +579,7 @@ export default function BuyerProfilePage() {
             {/* REQUIREMENTS */}
             {activeSection === "requirements" && (
               <div>
-                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#111827", marginBottom: "1.25rem" }}>Supplier Requirements</h2>
+                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#0f172a", marginBottom: "1.25rem" }}>Supplier Requirements</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                   <div>
                     <label className="label">Required certifications</label>
@@ -573,9 +587,9 @@ export default function BuyerProfilePage() {
                       {CERTIFICATIONS.map(c => (
                         <button key={c} type="button" onClick={() => toggle(requiredCerts, setRequiredCerts, c)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "9999px", fontSize: "0.8rem", fontWeight: 500,
-                          border: requiredCerts.includes(c) ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: requiredCerts.includes(c) ? "#f0fdfa" : "white",
-                          color: requiredCerts.includes(c) ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: requiredCerts.includes(c) ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: requiredCerts.includes(c) ? "var(--brand-light)" : "white",
+                          color: requiredCerts.includes(c) ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{c}</button>
                       ))}
                     </div>
@@ -586,9 +600,9 @@ export default function BuyerProfilePage() {
                       {TRACEABILITY.map(t => (
                         <button key={t} type="button" onClick={() => toggle(traceability, setTraceability, t)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "9999px", fontSize: "0.8rem", fontWeight: 500,
-                          border: traceability.includes(t) ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: traceability.includes(t) ? "#f0fdfa" : "white",
-                          color: traceability.includes(t) ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: traceability.includes(t) ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: traceability.includes(t) ? "var(--brand-light)" : "white",
+                          color: traceability.includes(t) ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{t}</button>
                       ))}
                     </div>
@@ -599,9 +613,9 @@ export default function BuyerProfilePage() {
                       {DOCUMENTATION.map(d => (
                         <button key={d} type="button" onClick={() => toggle(documentation, setDocumentation, d)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "9999px", fontSize: "0.8rem", fontWeight: 500,
-                          border: documentation.includes(d) ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: documentation.includes(d) ? "#f0fdfa" : "white",
-                          color: documentation.includes(d) ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: documentation.includes(d) ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: documentation.includes(d) ? "var(--brand-light)" : "white",
+                          color: documentation.includes(d) ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{d}</button>
                       ))}
                     </div>
@@ -617,7 +631,7 @@ export default function BuyerProfilePage() {
                       style={{
                         width: "1.25rem", height: "1.25rem", borderRadius: "0.25rem", flexShrink: 0,
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        backgroundColor: ndaRequired ? "#0d9488" : "transparent",
+                        backgroundColor: ndaRequired ? "var(--brand)" : "transparent",
                         border: ndaRequired ? "none" : "1px solid #d1d5db", cursor: "pointer",
                       }}
                     >
@@ -634,7 +648,7 @@ export default function BuyerProfilePage() {
             {/* COMMERCIAL */}
             {activeSection === "commercial" && (
               <div>
-                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#111827", marginBottom: "1.25rem" }}>Commercial Terms</h2>
+                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#0f172a", marginBottom: "1.25rem" }}>Commercial Terms</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                   <div>
                     <label className="label">Payment terms</label>
@@ -642,9 +656,9 @@ export default function BuyerProfilePage() {
                       {PAYMENT_TERMS.map(p => (
                         <button key={p.value} type="button" onClick={() => setPaymentTerms(p.value)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.8rem", fontWeight: 500,
-                          border: paymentTerms === p.value ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: paymentTerms === p.value ? "#f0fdfa" : "white",
-                          color: paymentTerms === p.value ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: paymentTerms === p.value ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: paymentTerms === p.value ? "var(--brand-light)" : "white",
+                          color: paymentTerms === p.value ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{p.label}</button>
                       ))}
                     </div>
@@ -655,9 +669,9 @@ export default function BuyerProfilePage() {
                       {["EXW", "FOB", "FCA", "DDP", "Other"].map(t => (
                         <button key={t} type="button" onClick={() => toggle(incoterms, setIncoterms, t)} style={{
                           padding: "0.375rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.8rem", fontWeight: 500,
-                          border: incoterms.includes(t) ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: incoterms.includes(t) ? "#f0fdfa" : "white",
-                          color: incoterms.includes(t) ? "#0f766e" : "#4b5563", cursor: "pointer",
+                          border: incoterms.includes(t) ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: incoterms.includes(t) ? "var(--brand-light)" : "white",
+                          color: incoterms.includes(t) ? "var(--brand)" : "#4b5563", cursor: "pointer",
                         }}>{t}</button>
                       ))}
                     </div>

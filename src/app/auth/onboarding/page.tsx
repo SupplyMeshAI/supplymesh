@@ -2,6 +2,8 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2, Check } from "lucide-react";
 
@@ -123,24 +125,28 @@ function OnboardingContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#f0f4f8] flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
 
         {/* Header */}
         <div className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">S</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900 tracking-tight">SupplyMesh</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <Link href="/" className="inline-flex items-center justify-center mb-4">
+            <Image
+              src="/brand/logo-full-dark.svg"
+              alt="SupplyMesh"
+              width={180}
+              height={42}
+              className="h-10 w-auto"
+              priority
+            />
+          </Link>
+          <h1 className="text-2xl font-bold text-slate-900">
             {step === 1 && "Tell us about your company"}
             {step === 2 && role === "supplier" && "What can you make?"}
             {step === 2 && role === "buyer" && "You're all set!"}
             {step === 3 && "A few more details"}
           </h1>
-          <p className="text-sm text-gray-500 mt-1.5">Step {step} of {totalSteps}</p>
+          <p className="text-sm text-slate-500 mt-1.5">Step {step} of {totalSteps}</p>
         </div>
 
         {/* Progress bar */}
@@ -152,7 +158,7 @@ function OnboardingContent() {
                 height: "6px",
                 flex: 1,
                 borderRadius: "9999px",
-                backgroundColor: i < step ? "#0d9488" : "#e5e7eb",
+                backgroundColor: i < step ? "var(--brand)" : "#e2e8f0",
                 transition: "background-color 0.2s",
               }}
             />
@@ -221,9 +227,9 @@ function OnboardingContent() {
                         borderRadius: "0.5rem",
                         fontSize: "0.875rem",
                         fontWeight: 500,
-                        border: companySize === size ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                        backgroundColor: companySize === size ? "#f0fdfa" : "white",
-                        color: companySize === size ? "#0f766e" : "#4b5563",
+                        border: companySize === size ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                        backgroundColor: companySize === size ? "var(--brand-light)" : "white",
+                        color: companySize === size ? "var(--brand)" : "#4b5563",
                         cursor: "pointer",
                       }}
                     >
@@ -258,9 +264,9 @@ function OnboardingContent() {
                           padding: "0.5rem 0.75rem",
                           borderRadius: "0.5rem",
                           fontSize: "0.875rem",
-                          border: selected ? "1px solid #0d9488" : "1px solid #e5e7eb",
-                          backgroundColor: selected ? "#f0fdfa" : "white",
-                          color: selected ? "#0f766e" : "#4b5563",
+                          border: selected ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                          backgroundColor: selected ? "var(--brand-light)" : "white",
+                          color: selected ? "var(--brand)" : "#4b5563",
                           cursor: "pointer",
                           textAlign: "left",
                         }}
@@ -273,7 +279,7 @@ function OnboardingContent() {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          backgroundColor: selected ? "#0d9488" : "transparent",
+                          backgroundColor: selected ? "var(--brand)" : "transparent",
                           border: selected ? "none" : "1px solid #d1d5db",
                         }}>
                           {selected && <Check style={{ width: "0.75rem", height: "0.75rem", color: "white" }} />}
@@ -335,13 +341,13 @@ function OnboardingContent() {
                 width: "3rem",
                 height: "3rem",
                 borderRadius: "9999px",
-                backgroundColor: "#f0fdfa",
+                backgroundColor: "var(--brand-light)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 margin: "0 auto 0.75rem",
               }}>
-                <Check style={{ width: "1.5rem", height: "1.5rem", color: "#0d9488" }} />
+                <Check style={{ width: "1.5rem", height: "1.5rem", color: "var(--brand)" }} />
               </div>
               <p style={{ color: "#4b5563", fontSize: "0.875rem" }}>
                 Your account is ready. You can now create RFQs and discover qualified suppliers.
@@ -361,7 +367,7 @@ function OnboardingContent() {
             gap: "0.75rem",
             marginTop: "1.5rem",
             paddingTop: "1rem",
-            borderTop: "1px solid #f3f4f6",
+            borderTop: "1px solid #f1f5f9",
           }}>
             {step > 1 && (
               <button
@@ -407,8 +413,8 @@ function OnboardingContent() {
 export default function OnboardingPage() {
   return (
     <Suspense fallback={
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Loader2 style={{ width: "1.5rem", height: "1.5rem", color: "#0d9488" }} className="animate-spin" />
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f0f4f8" }}>
+        <Loader2 style={{ width: "1.5rem", height: "1.5rem", color: "var(--brand)" }} className="animate-spin" />
       </div>
     }>
       <OnboardingContent />

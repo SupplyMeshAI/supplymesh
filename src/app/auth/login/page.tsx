@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2 } from "lucide-react";
@@ -32,20 +33,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#f0f4f8] flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
 
         {/* Logo */}
         <div className="mb-8 text-center">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">S</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900 tracking-tight">
-              SupplyMesh
-            </span>
+          <Link href="/" className="inline-flex items-center justify-center">
+            <Image
+              src="/brand/logo-full-dark.svg"
+              alt="SupplyMesh"
+              width={180}
+              height={42}
+              className="h-10 w-auto"
+              priority
+            />
           </Link>
-          <p className="mt-3 text-sm text-gray-500">Sign in to your account</p>
+          <p className="mt-3 text-sm text-slate-500">Sign in to your account</p>
         </div>
 
         <div className="card p-6">
@@ -65,7 +68,7 @@ export default function LoginPage() {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="label" style={{ marginBottom: 0 }}>Password</label>
-                <Link href="#" className="text-xs text-teal-600 hover:text-teal-700">
+                <Link href="#" className="text-xs text-[#173650] hover:text-[#142f46]">
                   Forgot password?
                 </Link>
               </div>
@@ -94,9 +97,9 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="mt-4 text-center text-sm text-gray-500">
+        <p className="mt-4 text-center text-sm text-slate-500">
           Don&apos;t have an account?{" "}
-          <Link href="/auth/signup" className="text-teal-600 font-medium hover:text-teal-700">
+          <Link href="/auth/signup" className="text-[#173650] font-medium hover:text-[#142f46]">
             Sign up
           </Link>
         </p>

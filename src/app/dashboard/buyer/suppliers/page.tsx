@@ -42,7 +42,7 @@ export default async function BuyerSuppliersPage({
         <Link
           href="/dashboard/buyer"
           style={{
-            color: "#0d9488",
+            color: "var(--brand)",
             textDecoration: "none",
             fontSize: "0.9rem",
             fontWeight: 500,
@@ -316,7 +316,7 @@ export default async function BuyerSuppliersPage({
                           href={supplier.website}
                           target="_blank"
                           rel="noreferrer"
-                          style={{ color: "#0d9488", textDecoration: "none" }}
+                          style={{ color: "var(--brand)", textDecoration: "none" }}
                         >
                           Website
                         </a>
@@ -329,7 +329,7 @@ export default async function BuyerSuppliersPage({
                       <Link
                         href={`/dashboard/buyer/suppliers/${supplier.id}`}
                         style={{
-                          color: "#0d9488",
+                          color: "var(--brand)",
                           textDecoration: "none",
                           fontWeight: 500,
                         }}
@@ -428,7 +428,7 @@ const primaryButtonStyle: CSSProperties = {
   padding: "0.7rem 1rem",
   borderRadius: "0.5rem",
   border: "none",
-  backgroundColor: "#0d9488",
+  backgroundColor: "var(--brand)",
   color: "white",
   fontWeight: 600,
   cursor: "pointer",

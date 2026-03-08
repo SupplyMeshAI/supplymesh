@@ -6,15 +6,8 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        primary: '#4f46e5',     // Indigo
-        secondary: '#475569',   // Slate
-        background: '#f8fafc',  // Off-white
-        success: '#10b981',     // Emerald
-        muted: '#64748b',
-      },
       fontFamily: {
-        sans: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         lg: 'var(--radius)',

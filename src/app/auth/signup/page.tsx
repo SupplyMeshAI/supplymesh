@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2, Building2, ShoppingCart } from "lucide-react";
@@ -43,20 +44,22 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#f0f4f8] flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
 
         {/* Logo */}
         <div className="mb-8 text-center">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">S</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900 tracking-tight">
-              SupplyMesh
-            </span>
+          <Link href="/" className="inline-flex items-center justify-center">
+            <Image
+              src="/brand/logo-full-dark.svg"
+              alt="SupplyMesh"
+              width={180}
+              height={42}
+              className="h-10 w-auto"
+              priority
+            />
           </Link>
-          <p className="mt-3 text-sm text-gray-500">
+          <p className="mt-3 text-sm text-slate-500">
             {step === 1 ? "How will you use SupplyMesh?" : "Create your account"}
           </p>
         </div>
@@ -66,15 +69,15 @@ export default function SignupPage() {
           <div className="space-y-3">
             <button
               onClick={() => { setRole("buyer"); setStep(2); }}
-              className="w-full card p-4 text-left hover:border-teal-300 hover:shadow-md transition-all group"
+              className="w-full card p-4 text-left hover:border-[#173650]/30 hover:shadow-md transition-all group"
             >
               <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-teal-50 group-hover:bg-teal-100 transition-colors">
-                  <ShoppingCart className="w-5 h-5 text-teal-600" />
+                <div className="p-2 rounded-lg bg-[#eef1f5] group-hover:bg-[#e5ebf0] transition-colors">
+                  <ShoppingCart className="w-5 h-5 text-[#173650]" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">I am a Buyer</div>
-                  <div className="text-sm text-gray-500 mt-0.5">
+                  <div className="font-semibold text-slate-900">I am a Buyer</div>
+                  <div className="text-sm text-slate-500 mt-0.5">
                     I source manufactured parts and need qualified suppliers
                   </div>
                 </div>
@@ -83,15 +86,15 @@ export default function SignupPage() {
 
             <button
               onClick={() => { setRole("supplier"); setStep(2); }}
-              className="w-full card p-4 text-left hover:border-teal-300 hover:shadow-md transition-all group"
+              className="w-full card p-4 text-left hover:border-[#173650]/30 hover:shadow-md transition-all group"
             >
               <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-teal-50 group-hover:bg-teal-100 transition-colors">
-                  <Building2 className="w-5 h-5 text-teal-600" />
+                <div className="p-2 rounded-lg bg-[#eef1f5] group-hover:bg-[#e5ebf0] transition-colors">
+                  <Building2 className="w-5 h-5 text-[#173650]" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">I am a Supplier</div>
-                  <div className="text-sm text-gray-500 mt-0.5">
+                  <div className="font-semibold text-slate-900">I am a Supplier</div>
+                  <div className="text-sm text-slate-500 mt-0.5">
                     I manufacture parts and want to win more RFQs
                   </div>
                 </div>
@@ -103,13 +106,13 @@ export default function SignupPage() {
         {/* Step 2 — Account details */}
         {step === 2 && (
           <div className="card p-6">
-            <div className="flex items-center justify-between mb-5 pb-4 border-b border-gray-100">
-              <span className="inline-flex items-center rounded-md bg-teal-50 px-2 py-1 text-xs font-medium text-teal-700 ring-1 ring-inset ring-teal-600/20">
+            <div className="flex items-center justify-between mb-5 pb-4 border-b border-slate-100">
+              <span className="inline-flex items-center rounded-md bg-[#eef1f5] px-2 py-1 text-xs font-medium text-[#173650] ring-1 ring-inset ring-[#173650]/20">
                 {role === "buyer" ? "Buyer account" : "Supplier account"}
               </span>
               <button
                 onClick={() => setStep(1)}
-                className="text-xs text-gray-400 hover:text-gray-600"
+                className="text-xs text-slate-400 hover:text-slate-600"
               >
                 Change
               </button>
@@ -167,9 +170,9 @@ export default function SignupPage() {
           </div>
         )}
 
-        <p className="mt-4 text-center text-sm text-gray-500">
+        <p className="mt-4 text-center text-sm text-slate-500">
           Already have an account?{" "}
-          <Link href="/auth/login" className="text-teal-600 font-medium hover:text-teal-700">
+          <Link href="/auth/login" className="text-[#173650] font-medium hover:text-[#142f46]">
             Sign in
           </Link>
         </p>

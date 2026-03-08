@@ -40,10 +40,10 @@ export default async function BuyerDashboardPage() {
   return (
     <>
       <div style={{ marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#111827" }}>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#0f172a" }}>
           Welcome back, {firstName} 👋
         </h1>
-        <p style={{ color: "#6b7280", marginTop: "0.25rem", fontSize: "0.875rem" }}>
+        <p style={{ color: "#64748b", marginTop: "0.25rem", fontSize: "0.875rem" }}>
           {company?.name} · {company?.city}, {company?.state_region}
         </p>
       </div>
@@ -69,7 +69,7 @@ export default async function BuyerDashboardPage() {
           const cardStyles: CSSProperties = {
             backgroundColor: "white",
             borderRadius: "0.75rem",
-            border: "1px solid #e5e7eb",
+            border: "1px solid #e2e8f0",
             padding: "1.25rem",
             textDecoration: "none",
             display: "block",
@@ -85,7 +85,7 @@ export default async function BuyerDashboardPage() {
                   width: "2.25rem",
                   height: "2.25rem",
                   borderRadius: "0.5rem",
-                  backgroundColor: "#f0fdfa",
+                  backgroundColor: "var(--brand-light)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -96,7 +96,7 @@ export default async function BuyerDashboardPage() {
                   style={{
                     width: "1.25rem",
                     height: "1.25rem",
-                    color: "#0d9488",
+                    color: "var(--brand)",
                   }}
                 />
               </div>
@@ -104,7 +104,7 @@ export default async function BuyerDashboardPage() {
               <div
                 style={{
                   fontWeight: 600,
-                  color: "#111827",
+                  color: "#0f172a",
                   fontSize: "0.875rem",
                 }}
               >
@@ -114,7 +114,7 @@ export default async function BuyerDashboardPage() {
               <div
                 style={{
                   fontSize: "0.75rem",
-                  color: "#9ca3af",
+                  color: "#94a3b8",
                   marginTop: "0.25rem",
                 }}
               >
@@ -139,7 +139,7 @@ export default async function BuyerDashboardPage() {
         style={{
           backgroundColor: "white",
           borderRadius: "0.75rem",
-          border: "1px solid #e5e7eb",
+          border: "1px solid #e2e8f0",
           padding: "3rem",
           textAlign: "center",
         }}
@@ -149,24 +149,24 @@ export default async function BuyerDashboardPage() {
             width: "3rem",
             height: "3rem",
             borderRadius: "9999px",
-            backgroundColor: "#f3f4f6",
+            backgroundColor: "#f1f5f9",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             margin: "0 auto 1rem",
           }}
         >
-          <Clock style={{ width: "1.5rem", height: "1.5rem", color: "#9ca3af" }} />
+          <Clock style={{ width: "1.5rem", height: "1.5rem", color: "#94a3b8" }} />
         </div>
 
-        <h2 style={{ fontWeight: 600, color: "#111827", marginBottom: "0.5rem" }}>
+        <h2 style={{ fontWeight: 600, color: "#0f172a", marginBottom: "0.5rem" }}>
           Supplier search is now live
         </h2>
 
         <p
           style={{
             fontSize: "0.875rem",
-            color: "#6b7280",
+            color: "#64748b",
             maxWidth: "28rem",
             margin: "0 auto",
           }}

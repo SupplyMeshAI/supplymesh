@@ -1,46 +1,35 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
-import "./globals.css";
-import { cn } from "@/lib/utils";
+import type { Metadata } from "next"
+import { Geist } from "next/font/google"  // ← Change to Geist (not GeistSans)
+import "./globals.css"
+import { cn } from "@/lib/utils"
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Define the font (Sans version)
+const fontSans = Geist({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  variable: "--font-sans",  // This creates a CSS var for Tailwind/shadcn to use
+  display: "swap",          // Good practice for performance
+})
 
 export const metadata: Metadata = {
-  title: "SupplyMesh — Intelligent Manufacturing Sourcing",
-  description: "Connect buyers with qualified suppliers based on actual capabilities.",
-};
+  title: "SupplyMesh - AI-Powered Manufacturing Sourcing",
+  description: "Intelligent matching layer for suppliers and manufacturers",
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", inter.variable)}>
-      <head>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-5ZCF95Z4BE" />
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-5ZCF95Z4BE');
-          `
-        }} />
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable  // ← Applies the variable font
+        )}
+      >
         {children}
       </body>
     </html>
-  );
+  )
 }

@@ -1,6 +1,7 @@
+// src/app/dashboard/supplier/page.tsx
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Award, TrendingUp, Settings, CheckCircle2, AlertCircle } from "lucide-react";
+import { Award, TrendingUp, Settings, CheckCircle2, AlertCircle, Inbox } from "lucide-react";
 import Link from "next/link";
 import { AppNavbar } from "@/components/ui/app-navbar";
 
@@ -31,6 +32,23 @@ export default async function SupplierDashboardPage() {
         .single()
     : { data: null };
 
+  // Live match count from rfq_matches
+  const { count: matchCount } = supplierProfile
+    ? await supabase
+        .from("rfq_matches")
+        .select("id", { count: "exact", head: true })
+        .eq("supplier_id", supplierProfile.id)
+        .in("status", ["matched", "shortlisted"])
+    : { count: 0 };
+
+  const shortlistedCount = supplierProfile
+    ? (await supabase
+        .from("rfq_matches")
+        .select("id", { count: "exact", head: true })
+        .eq("supplier_id", supplierProfile.id)
+        .eq("status", "shortlisted")).count
+    : 0;
+
   const firstName = profile?.full_name?.split(" ")[0] || "there";
   const completeness = supplierProfile?.completeness_score ?? 0;
 
@@ -58,6 +76,35 @@ export default async function SupplierDashboardPage() {
             {company?.name} · {company?.city}, {company?.state_region}
           </p>
         </div>
+
+        {/* RFQ Inbox CTA — shown when matches exist */}
+        {(matchCount ?? 0) > 0 && (
+          <Link href="/dashboard/supplier/rfqs" style={{ textDecoration: "none" }}>
+            <div style={{
+              backgroundColor: "var(--brand)", borderRadius: "0.75rem",
+              padding: "1rem 1.5rem", marginBottom: "1.5rem",
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              cursor: "pointer",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.875rem" }}>
+                <div style={{ backgroundColor: "rgba(255,255,255,0.15)", padding: "0.5rem", borderRadius: "0.5rem" }}>
+                  <Inbox style={{ width: "1.25rem", height: "1.25rem", color: "white" }} />
+                </div>
+                <div>
+                  <p style={{ fontWeight: 600, color: "white", fontSize: "0.95rem" }}>
+                    You have {matchCount} matched RFQ{matchCount !== 1 ? "s" : ""}
+                  </p>
+                  <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.75)", marginTop: "0.1rem" }}>
+                    {shortlistedCount
+                      ? `${shortlistedCount} shortlisted by buyers`
+                      : "Review your matches and get ready to quote"}
+                  </p>
+                </div>
+              </div>
+              <span style={{ color: "rgba(255,255,255,0.85)", fontSize: "1.25rem" }}>→</span>
+            </div>
+          </Link>
+        )}
 
         <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1.5rem" }}>
 
@@ -107,15 +154,10 @@ export default async function SupplierDashboardPage() {
               <Link
                 href="/profile/supplier"
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  padding: "0.5rem 1rem",
-                  borderRadius: "0.5rem",
-                  fontSize: "0.875rem",
-                  fontWeight: 600,
-                  color: "white",
-                  backgroundColor: "var(--brand)",
-                  textDecoration: "none",
+                  display: "inline-flex", alignItems: "center",
+                  padding: "0.5rem 1rem", borderRadius: "0.5rem",
+                  fontSize: "0.875rem", fontWeight: 600,
+                  color: "white", backgroundColor: "var(--brand)", textDecoration: "none",
                 }}
               >
                 Edit profile →
@@ -126,16 +168,27 @@ export default async function SupplierDashboardPage() {
           {/* Stats */}
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
 
-            <div style={{ backgroundColor: "white", borderRadius: "0.75rem", border: "1px solid #e2e8f0", padding: "1.25rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.25rem" }}>
-                <div style={{ padding: "0.375rem", borderRadius: "0.5rem", backgroundColor: "var(--brand-light)" }}>
-                  <Award style={{ width: "1rem", height: "1rem", color: "var(--brand)" }} />
+            {/* RFQ Matches stat */}
+            <Link href="/dashboard/supplier/rfqs" style={{ textDecoration: "none" }}>
+              <div style={{
+                backgroundColor: "white", borderRadius: "0.75rem",
+                border: "1px solid #e2e8f0", padding: "1.25rem",
+                cursor: "pointer", transition: "border-color 0.15s",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.25rem" }}>
+                  <div style={{ padding: "0.375rem", borderRadius: "0.5rem", backgroundColor: "var(--brand-light)" }}>
+                    <Award style={{ width: "1rem", height: "1rem", color: "var(--brand)" }} />
+                  </div>
+                  <span style={{ fontSize: "0.875rem", fontWeight: 500, color: "#374151" }}>RFQ Matches</span>
                 </div>
-                <span style={{ fontSize: "0.875rem", fontWeight: 500, color: "#374151" }}>RFQ Matches</span>
+                <div style={{ fontSize: "1.875rem", fontWeight: "bold", color: "#0f172a", marginTop: "0.5rem" }}>
+                  {matchCount ?? 0}
+                </div>
+                <div style={{ fontSize: "0.75rem", color: "var(--brand)", marginTop: "0.15rem" }}>
+                  View inbox →
+                </div>
               </div>
-              <div style={{ fontSize: "1.875rem", fontWeight: "bold", color: "#0f172a", marginTop: "0.5rem" }}>—</div>
-              <div style={{ fontSize: "0.75rem", color: "#94a3b8" }}>Coming in Phase 3</div>
-            </div>
+            </Link>
 
             <div style={{ backgroundColor: "white", borderRadius: "0.75rem", border: "1px solid #e2e8f0", padding: "1.25rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.25rem" }}>

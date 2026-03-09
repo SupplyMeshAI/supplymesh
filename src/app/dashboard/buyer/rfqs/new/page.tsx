@@ -302,6 +302,7 @@ export default function NewRfqPage() {
     const processReqFlags = selectedProcesses.map(p => processFlags[p] || "preferred");
     const certReqFlags = selectedCerts.map(c => certFlags[c] || "preferred");
 
+    // 1. Save final state + mark as submitted
     const { error: submitError } = await supabase
       .from("rfqs")
       .update({
@@ -342,6 +343,14 @@ export default function NewRfqPage() {
       return;
     }
 
+    // 2. Trigger supplier matching (fire and don't block navigation)
+    fetch("/api/rfqs/match", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rfq_id: rfqId }),
+    }).catch(err => console.error("Matching error:", err));
+
+    // 3. Navigate immediately — matching runs in background
     router.push(`/dashboard/buyer/rfqs/${rfqId}?submitted=true`);
   }
 

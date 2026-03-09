@@ -45,8 +45,8 @@ export type Rfq = {
   needed_by_date: string | null;
   production_start: string | null;
   target_price: number | null;
-  budget_range: string | null;
-  notes: string | null;
+  budget_notes: string | null;
+  special_instructions: string | null;
 
   submitted_at: string | null;
   created_at: string;

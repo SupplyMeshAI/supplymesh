@@ -57,14 +57,24 @@ export default async function BuyerDashboardPage() {
         }}
       >
         {[
-          { icon: Plus, label: "New RFQ", sub: "Coming in Phase 2" },
+          {
+            icon: Plus,
+            label: "New RFQ",
+            sub: "Submit a sourcing request",
+            href: "/dashboard/buyer/rfqs/new",
+          },
           {
             icon: Search,
             label: "Find Suppliers",
             sub: "Search supplier database",
             href: "/dashboard/buyer/suppliers",
           },
-          { icon: FileText, label: "My RFQs", sub: "Coming in Phase 2" },
+          {
+            icon: FileText,
+            label: "My RFQs",
+            sub: "View and manage your RFQs",
+            href: "/dashboard/buyer/rfqs",
+          },
         ].map(({ icon: Icon, label, sub, href }) => {
           const cardStyles: CSSProperties = {
             backgroundColor: "white",
@@ -74,8 +84,7 @@ export default async function BuyerDashboardPage() {
             textDecoration: "none",
             display: "block",
             transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-            opacity: href ? 1 : 0.6,
-            cursor: href ? "pointer" : "default",
+            cursor: "pointer",
           };
 
           const content = (
@@ -123,14 +132,10 @@ export default async function BuyerDashboardPage() {
             </>
           );
 
-          return href ? (
+          return (
             <Link key={label} href={href} style={cardStyles}>
               {content}
             </Link>
-          ) : (
-            <div key={label} style={cardStyles}>
-              {content}
-            </div>
           );
         })}
       </div>
@@ -160,7 +165,7 @@ export default async function BuyerDashboardPage() {
         </div>
 
         <h2 style={{ fontWeight: 600, color: "#0f172a", marginBottom: "0.5rem" }}>
-          Supplier search is now live
+          Supplier matching coming soon
         </h2>
 
         <p
@@ -171,8 +176,8 @@ export default async function BuyerDashboardPage() {
             margin: "0 auto",
           }}
         >
-          You can now browse the supplier database. Structured sourcing requests
-          and supplier shortlists are coming next.
+          Submit an RFQ and we&apos;ll automatically match you with qualified suppliers
+          based on processes, certifications, and location.
         </p>
       </div>
     </>

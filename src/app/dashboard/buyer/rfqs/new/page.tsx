@@ -2,11 +2,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { Loader2, Check, AlertCircle, Upload, X, Lock, Star } from "lucide-react";
+import { Loader2, Check, AlertCircle, Lock, Star } from "lucide-react";
 import type { Rfq, RequirementFlag } from "@/lib/rfqs/types";
 
 // ============================================================================
@@ -84,40 +84,44 @@ const STEP_LABELS = [
 // ============================================================================
 export default function NewRfqPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const draftId = searchParams.get("draft");
+
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [initializing, setInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rfqId, setRfqId] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
 
-  // Step 1: Part overview
+  // Step 1
   const [projectName, setProjectName] = useState("");
   const [partName, setPartName] = useState("");
   const [partDescription, setPartDescription] = useState("");
 
-  // Step 2: Process & material
+  // Step 2
   const [selectedProcesses, setSelectedProcesses] = useState<string[]>([]);
   const [processFlags, setProcessFlags] = useState<Record<string, RequirementFlag>>({});
   const [materialPrimary, setMaterialPrimary] = useState("");
   const [materialRequired, setMaterialRequired] = useState(true);
   const [secondaryOps, setSecondaryOps] = useState("");
 
-  // Step 3: Specs & quantity
+  // Step 3
   const [toleranceGeneral, setToleranceGeneral] = useState("");
   const [toleranceTight, setToleranceTight] = useState("");
   const [lotSize, setLotSize] = useState("");
   const [annualVolume, setAnnualVolume] = useState("");
   const [numParts, setNumParts] = useState("1");
 
-  // Step 4: Requirements
+  // Step 4
   const [selectedCerts, setSelectedCerts] = useState<string[]>([]);
   const [certFlags, setCertFlags] = useState<Record<string, RequirementFlag>>({});
   const [itarRequired, setItarRequired] = useState(false);
   const [industry, setIndustry] = useState("");
   const [additionalReqs, setAdditionalReqs] = useState("");
 
-  // Step 5: Location, timeline & budget
+  // Step 5
   const [preferredRegions, setPreferredRegions] = useState<string[]>([]);
   const [priority, setPriority] = useState<"low" | "standard" | "urgent">("standard");
   const [neededBy, setNeededBy] = useState("");
@@ -127,7 +131,7 @@ export default function NewRfqPage() {
   const [notes, setNotes] = useState("");
 
   // ============================================================================
-  // Init: get company_id and create draft RFQ
+  // Init: either load draft or create new one
   // ============================================================================
   useEffect(() => {
     async function init() {
@@ -135,7 +139,6 @@ export default function NewRfqPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/auth/login"); return; }
 
-      // Get user's company
       const { data: membership } = await supabase
         .from("company_members")
         .select("company_id")
@@ -145,7 +148,72 @@ export default function NewRfqPage() {
       if (!membership) { router.push("/auth/onboarding"); return; }
       setCompanyId(membership.company_id);
 
-      // Create draft RFQ immediately
+      // ── Resume existing draft ─────────────────────────────────────
+      if (draftId) {
+        const { data: rfq, error: fetchError } = await supabase
+          .from("rfqs")
+          .select("*")
+          .eq("id", draftId)
+          .eq("company_id", membership.company_id) // ownership check
+          .eq("status", "draft")
+          .single();
+
+        if (!fetchError && rfq) {
+          setRfqId(rfq.id);
+          setStep(rfq.current_step || 1);
+
+          // Step 1
+          setProjectName(rfq.project_name || "");
+          setPartName(rfq.part_name || "");
+          setPartDescription(rfq.part_description || "");
+
+          // Step 2
+          setSelectedProcesses(rfq.processes_required || []);
+          const pFlags: Record<string, RequirementFlag> = {};
+          (rfq.processes_required || []).forEach((p: string, i: number) => {
+            pFlags[p] = rfq.processes_required_flags?.[i] || "preferred";
+          });
+          setProcessFlags(pFlags);
+          setMaterialPrimary(rfq.material_primary || "");
+          setMaterialRequired(rfq.material_is_required ?? true);
+          setSecondaryOps(rfq.secondary_operations || "");
+
+          // Step 3
+          setToleranceGeneral(rfq.tolerance_general || "");
+          setToleranceTight(rfq.tolerance_tight || "");
+          setLotSize(rfq.lot_size || "");
+          setAnnualVolume(rfq.annual_volume || "");
+          setNumParts(String(rfq.num_unique_parts || 1));
+
+          // Step 4
+          setSelectedCerts(rfq.certifications_required || []);
+          const cFlags: Record<string, RequirementFlag> = {};
+          (rfq.certifications_required || []).forEach((c: string, i: number) => {
+            cFlags[c] = rfq.certifications_required_flags?.[i] || "preferred";
+          });
+          setCertFlags(cFlags);
+          setItarRequired(rfq.itar_required || false);
+          setIndustry(rfq.industry || "");
+          setAdditionalReqs(rfq.additional_requirements || "");
+
+          // Step 5
+          setPreferredRegions(rfq.preferred_regions || []);
+          setPriority(rfq.priority || "standard");
+          setNeededBy(rfq.needed_by_date || "");
+          setProductionStart(rfq.production_start || "");
+          setTargetPrice(rfq.target_price ? String(rfq.target_price) : "");
+          setBudgetRange(rfq.budget_notes || "");
+          setNotes(rfq.special_instructions || "");
+
+          setInitializing(false);
+          return; // skip creating a new draft
+        }
+
+        // Draft not found or not owned — fall through to create fresh
+        console.warn("Draft not found or access denied, starting new RFQ");
+      }
+
+      // ── Create fresh draft ────────────────────────────────────────
       const { data: rfq, error: rfqError } = await supabase
         .from("rfqs")
         .insert({
@@ -157,11 +225,12 @@ export default function NewRfqPage() {
         .select()
         .single();
 
-      if (rfqError) { setError(rfqError.message); return; }
+      if (rfqError) { setError(rfqError.message); setInitializing(false); return; }
       setRfqId(rfq.id);
+      setInitializing(false);
     }
     init();
-  }, [router]);
+  }, [router, draftId]);
 
   // ============================================================================
   // Auto-save on step change
@@ -213,11 +282,13 @@ export default function NewRfqPage() {
   async function handleNext() {
     await saveCurrentStep();
     setStep(s => s + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function handleBack() {
     await saveCurrentStep();
     setStep(s => s - 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   // ============================================================================
@@ -271,7 +342,7 @@ export default function NewRfqPage() {
       return;
     }
 
-    router.push("/dashboard/buyer/rfqs");
+    router.push(`/dashboard/buyer/rfqs/${rfqId}?submitted=true`);
   }
 
   // ============================================================================
@@ -321,12 +392,17 @@ export default function NewRfqPage() {
   }
 
   // ============================================================================
-  // Render
+  // Loading state
   // ============================================================================
-  if (!rfqId) {
+  if (initializing) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f0f4f8" }}>
-        <Loader2 style={{ width: "1.5rem", height: "1.5rem", color: "var(--brand)" }} className="animate-spin" />
+        <div style={{ textAlign: "center" }}>
+          <Loader2 style={{ width: "1.5rem", height: "1.5rem", color: "var(--brand)", margin: "0 auto" }} className="animate-spin" />
+          <p style={{ marginTop: "0.75rem", fontSize: "0.875rem", color: "#64748b" }}>
+            {draftId ? "Loading draft..." : "Creating RFQ..."}
+          </p>
+        </div>
       </div>
     );
   }
@@ -353,6 +429,7 @@ export default function NewRfqPage() {
           <p className="text-sm text-slate-500 mt-1.5">
             Step {step} of {TOTAL_STEPS}
             {saving && <span className="ml-2 text-emerald-600">· Saving...</span>}
+            {draftId && !saving && <span className="ml-2 text-slate-400">· Draft</span>}
           </p>
         </div>
 
@@ -823,14 +900,12 @@ export default function NewRfqPage() {
           {/* ============ STEP 6: Review & Submit ============ */}
           {step === 6 && (
             <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-              {/* Part Overview */}
               <ReviewSection title="Part Overview" onEdit={() => setStep(1)}>
                 <ReviewRow label="Project" value={projectName} />
                 <ReviewRow label="Part name" value={partName} />
                 <ReviewRow label="Description" value={partDescription} />
               </ReviewSection>
 
-              {/* Process & Material */}
               <ReviewSection title="Process & Material" onEdit={() => setStep(2)}>
                 <ReviewRow
                   label="Processes"
@@ -844,7 +919,6 @@ export default function NewRfqPage() {
                 <ReviewRow label="Secondary ops" value={secondaryOps} />
               </ReviewSection>
 
-              {/* Specs */}
               <ReviewSection title="Specs & Quantity" onEdit={() => setStep(3)}>
                 <ReviewRow label="Tolerance" value={toleranceGeneral} />
                 <ReviewRow label="Tight tolerance" value={toleranceTight} />
@@ -853,7 +927,6 @@ export default function NewRfqPage() {
                 <ReviewRow label="Unique parts" value={numParts} />
               </ReviewSection>
 
-              {/* Requirements */}
               <ReviewSection title="Requirements" onEdit={() => setStep(4)}>
                 <ReviewRow
                   label="Certifications"
@@ -867,7 +940,6 @@ export default function NewRfqPage() {
                 <ReviewRow label="Industry" value={industry} />
               </ReviewSection>
 
-              {/* Location, Timeline, Budget */}
               <ReviewSection title="Location, Timeline & Budget" onEdit={() => setStep(5)}>
                 <ReviewRow label="Regions" value={preferredRegions.join(", ")} />
                 <ReviewRow label="Priority" value={priority} />
@@ -879,7 +951,7 @@ export default function NewRfqPage() {
             </div>
           )}
 
-          {/* Error display */}
+          {/* Error */}
           {error && (
             <div style={{ marginTop: "1rem" }} className="rounded-lg bg-red-50 border border-red-200 px-3 py-2.5 text-sm text-red-700">
               <AlertCircle style={{ width: "1rem", height: "1rem", display: "inline", marginRight: "0.4rem", verticalAlign: "text-bottom" }} />
@@ -887,7 +959,7 @@ export default function NewRfqPage() {
             </div>
           )}
 
-          {/* Navigation buttons */}
+          {/* Navigation */}
           <div style={{
             display: "flex",
             gap: "0.75rem",
@@ -934,7 +1006,7 @@ export default function NewRfqPage() {
                 style={{ marginLeft: "auto" }}
               >
                 {loading
-                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</>
+                  ? <><Loader2 className="w-4 h-4 animate-spin inline mr-1" /> Submitting...</>
                   : "Submit RFQ →"
                 }
               </button>
@@ -947,7 +1019,7 @@ export default function NewRfqPage() {
 }
 
 // ============================================================================
-// Review step helper components
+// Review step helpers
 // ============================================================================
 function ReviewSection({ title, onEdit, children }: { title: string; onEdit: () => void; children: React.ReactNode }) {
   return (

@@ -51,7 +51,7 @@ export default function SignupPage() {
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center justify-center">
             <Image
-              src="/brand/logo-full-white.svg"
+              src="/brand/logo-full-dark.svg"
               alt="SupplyMesh"
               width={180}
               height={42}

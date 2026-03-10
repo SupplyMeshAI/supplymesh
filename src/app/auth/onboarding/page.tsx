@@ -68,11 +68,12 @@ function OnboardingContent() {
     if (!user) { router.push("/auth/login"); return; }
 
     try {
-      // 1. Create company
+      // 1. Create company — type is set from the role selected during signup
       const { data: company, error: companyError } = await supabase
         .from("companies")
         .insert({
           name: companyName,
+          type: role,                    // ← fixes the null type bug
           website: companyWebsite || null,
           size: companySize || null,
           city: companyCity || null,
@@ -116,7 +117,8 @@ function OnboardingContent() {
         .update({ onboarding: "complete", full_name: user.user_metadata?.full_name })
         .eq("id", user.id);
 
-      router.push("/dashboard");
+      // 5. Route to the correct dashboard based on role
+      router.push(role === "supplier" ? "/dashboard/supplier" : "/dashboard/buyer");
 
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : JSON.stringify(err));

@@ -1,3 +1,4 @@
+// src/components/ui/app-navbar.tsx
 import Link from "next/link";
 import Image from "next/image";
 
@@ -23,7 +24,7 @@ export function AppNavbar() {
           >
             Profile
           </Link>
-          <form action="/api/auth/signout" method="post">
+          <form action="/auth/signout" method="post">
             <button
               type="submit"
               className="text-sm font-medium text-white/75 transition hover:text-white"

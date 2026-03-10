@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Award, TrendingUp, Settings, CheckCircle2, AlertCircle, Inbox } from "lucide-react";
 import Link from "next/link";
-import { AppNavbar } from "@/components/ui/app-navbar";
 
 export default async function SupplierDashboardPage() {
   const supabase = await createClient();
@@ -32,21 +31,36 @@ export default async function SupplierDashboardPage() {
         .single()
     : { data: null };
 
-  // Live match count from rfq_matches
-  const { count: matchCount } = supplierProfile
-    ? await supabase
-        .from("rfq_matches")
-        .select("id", { count: "exact", head: true })
-        .eq("supplier_id", supplierProfile.id)
-        .in("status", ["matched", "shortlisted"])
-    : { count: 0 };
+  // Count all active matches: matched + shortlisted + quoted
+  const activeStatuses = ["matched", "shortlisted", "quoted"];
+  const matchCounts = supplierProfile
+    ? await Promise.all(
+        activeStatuses.map(status =>
+          supabase
+            .from("rfq_matches")
+            .select("id", { count: "exact", head: true })
+            .eq("supplier_id", supplierProfile.id)
+            .eq("status", status)
+        )
+      )
+    : [];
+
+  const matchCount = matchCounts.reduce((sum, r) => sum + (r.count ?? 0), 0);
 
   const shortlistedCount = supplierProfile
     ? (await supabase
         .from("rfq_matches")
         .select("id", { count: "exact", head: true })
         .eq("supplier_id", supplierProfile.id)
-        .eq("status", "shortlisted")).count
+        .eq("status", "shortlisted")).count ?? 0
+    : 0;
+
+  const quotedCount = supplierProfile
+    ? (await supabase
+        .from("rfq_matches")
+        .select("id", { count: "exact", head: true })
+        .eq("supplier_id", supplierProfile.id)
+        .eq("status", "quoted")).count ?? 0
     : 0;
 
   const firstName = profile?.full_name?.split(" ")[0] || "there";
@@ -61,11 +75,14 @@ export default async function SupplierDashboardPage() {
     { done: supplierProfile?.description != null, label: "Add a shop description" },
   ];
 
-  return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f0f4f8" }}>
-      <AppNavbar />
+  const ctaSubtext = quotedCount > 0
+    ? `${quotedCount} quote${quotedCount !== 1 ? "s" : ""} submitted`
+    : shortlistedCount > 0
+    ? `${shortlistedCount} shortlisted by buyers`
+    : "Review your matches and get ready to quote";
 
-      <main style={{ maxWidth: "64rem", margin: "0 auto", padding: "2.5rem 1.5rem" }}>
+  return (
+    <div style={{ maxWidth: "64rem", margin: "0 auto" }}>
 
         {/* Welcome */}
         <div style={{ marginBottom: "2rem" }}>
@@ -77,8 +94,8 @@ export default async function SupplierDashboardPage() {
           </p>
         </div>
 
-        {/* RFQ Inbox CTA — shown when matches exist */}
-        {(matchCount ?? 0) > 0 && (
+        {/* RFQ Inbox CTA */}
+        {matchCount > 0 && (
           <Link href="/dashboard/supplier/rfqs" style={{ textDecoration: "none" }}>
             <div style={{
               backgroundColor: "var(--brand)", borderRadius: "0.75rem",
@@ -92,12 +109,10 @@ export default async function SupplierDashboardPage() {
                 </div>
                 <div>
                   <p style={{ fontWeight: 600, color: "white", fontSize: "0.95rem" }}>
-                    You have {matchCount} matched RFQ{matchCount !== 1 ? "s" : ""}
+                    You have {matchCount} active RFQ{matchCount !== 1 ? "s" : ""}
                   </p>
                   <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.75)", marginTop: "0.1rem" }}>
-                    {shortlistedCount
-                      ? `${shortlistedCount} shortlisted by buyers`
-                      : "Review your matches and get ready to quote"}
+                    {ctaSubtext}
                   </p>
                 </div>
               </div>
@@ -123,7 +138,6 @@ export default async function SupplierDashboardPage() {
               </span>
             </div>
 
-            {/* Progress bar */}
             <div style={{ height: "0.5rem", backgroundColor: "#f1f5f9", borderRadius: "9999px", marginBottom: "1.25rem", overflow: "hidden" }}>
               <div style={{
                 height: "100%", borderRadius: "9999px",
@@ -151,15 +165,12 @@ export default async function SupplierDashboardPage() {
             </div>
 
             <div style={{ marginTop: "1.25rem" }}>
-              <Link
-                href="/profile/supplier"
-                style={{
-                  display: "inline-flex", alignItems: "center",
-                  padding: "0.5rem 1rem", borderRadius: "0.5rem",
-                  fontSize: "0.875rem", fontWeight: 600,
-                  color: "white", backgroundColor: "var(--brand)", textDecoration: "none",
-                }}
-              >
+              <Link href="/profile/supplier" style={{
+                display: "inline-flex", alignItems: "center",
+                padding: "0.5rem 1rem", borderRadius: "0.5rem",
+                fontSize: "0.875rem", fontWeight: 600,
+                color: "white", backgroundColor: "var(--brand)", textDecoration: "none",
+              }}>
                 Edit profile →
               </Link>
             </div>
@@ -168,21 +179,19 @@ export default async function SupplierDashboardPage() {
           {/* Stats */}
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
 
-            {/* RFQ Matches stat */}
             <Link href="/dashboard/supplier/rfqs" style={{ textDecoration: "none" }}>
               <div style={{
                 backgroundColor: "white", borderRadius: "0.75rem",
-                border: "1px solid #e2e8f0", padding: "1.25rem",
-                cursor: "pointer", transition: "border-color 0.15s",
+                border: "1px solid #e2e8f0", padding: "1.25rem", cursor: "pointer",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.25rem" }}>
                   <div style={{ padding: "0.375rem", borderRadius: "0.5rem", backgroundColor: "var(--brand-light)" }}>
                     <Award style={{ width: "1rem", height: "1rem", color: "var(--brand)" }} />
                   </div>
-                  <span style={{ fontSize: "0.875rem", fontWeight: 500, color: "#374151" }}>RFQ Matches</span>
+                  <span style={{ fontSize: "0.875rem", fontWeight: 500, color: "#374151" }}>Active RFQs</span>
                 </div>
                 <div style={{ fontSize: "1.875rem", fontWeight: "bold", color: "#0f172a", marginTop: "0.5rem" }}>
-                  {matchCount ?? 0}
+                  {matchCount}
                 </div>
                 <div style={{ fontSize: "0.75rem", color: "var(--brand)", marginTop: "0.15rem" }}>
                   View inbox →
@@ -227,7 +236,6 @@ export default async function SupplierDashboardPage() {
 
           </div>
         </div>
-      </main>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+// src/app/dashboard/buyer/suppliers/page.tsx
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { searchSuppliers } from "@/lib/suppliers/searchSuppliers";
@@ -21,9 +22,7 @@ type BuyerSuppliersPageProps = {
   }>;
 };
 
-export default async function BuyerSuppliersPage({
-  searchParams,
-}: BuyerSuppliersPageProps) {
+export default async function BuyerSuppliersPage({ searchParams }: BuyerSuppliersPageProps) {
   const params = (await searchParams) ?? {};
 
   const suppliers = await searchSuppliers({
@@ -38,204 +37,71 @@ export default async function BuyerSuppliersPage({
 
   return (
     <>
-      <div style={{ marginBottom: "1rem" }}>
-        <Link
-          href="/dashboard/buyer"
-          style={{
-            color: "var(--brand)",
-            textDecoration: "none",
-            fontSize: "0.9rem",
-            fontWeight: 500,
-          }}
-        >
-          ← Back to Buyer Dashboard
+      {/* Page header */}
+      <div style={{ marginBottom: "28px" }}>
+        <Link href="/dashboard/buyer" style={{ color: "var(--brand)", textDecoration: "none", fontSize: "0.8125rem", fontWeight: 500 }}>
+          ← Back to Dashboard
         </Link>
-      </div>
-
-      <div style={{ marginBottom: "2rem" }}>
-        <h1
-          style={{
-            fontSize: "1.75rem",
-            fontWeight: "bold",
-            color: "#111827",
-          }}
-        >
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--text)", marginTop: "12px" }}>
           Supplier Database
         </h1>
-        <p
-          style={{
-            color: "#6b7280",
-            marginTop: "0.5rem",
-            fontSize: "0.95rem",
-          }}
-        >
-          Search and filter suppliers by process, material, certifications,
-          industry, location, and lead time.
+        <p style={{ color: "var(--text-muted)", marginTop: "5px", fontSize: "0.9375rem" }}>
+          Search and filter suppliers by process, material, certifications, industry, location, and lead time.
         </p>
       </div>
 
-      <form
-        method="GET"
-        style={{
-          backgroundColor: "white",
-          border: "1px solid #e5e7eb",
-          borderRadius: "0.75rem",
-          padding: "1rem",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-            gap: "0.75rem",
-            marginBottom: "0.75rem",
-          }}
-        >
-          <input
-            type="text"
-            name="q"
-            defaultValue={params.q ?? ""}
-            placeholder="Keyword search"
-            style={inputStyle}
-          />
-
-          <select
-            name="process"
-            defaultValue={params.process ?? ""}
-            style={inputStyle}
-          >
+      {/* Filters */}
+      <form method="GET" style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", padding: "18px 20px", marginBottom: "20px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "10px", marginBottom: "12px" }}>
+          <input type="text" name="q" defaultValue={params.q ?? ""} placeholder="Keyword search" style={inputStyle} />
+          <select name="process" defaultValue={params.process ?? ""} style={inputStyle}>
             <option value="">All Processes</option>
-            {PROCESS_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
+            {PROCESS_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
-
-          <select
-            name="material"
-            defaultValue={params.material ?? ""}
-            style={inputStyle}
-          >
+          <select name="material" defaultValue={params.material ?? ""} style={inputStyle}>
             <option value="">All Materials</option>
-            {MATERIAL_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
+            {MATERIAL_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
-
-          <select
-            name="certification"
-            defaultValue={params.certification ?? ""}
-            style={inputStyle}
-          >
+          <select name="certification" defaultValue={params.certification ?? ""} style={inputStyle}>
             <option value="">All Certifications</option>
-            {CERTIFICATION_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
+            {CERTIFICATION_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
-
-          <select
-            name="industry"
-            defaultValue={params.industry ?? ""}
-            style={inputStyle}
-          >
+          <select name="industry" defaultValue={params.industry ?? ""} style={inputStyle}>
             <option value="">All Industries</option>
-            {INDUSTRY_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
+            {INDUSTRY_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
-
-          <select
-            name="state_region"
-            defaultValue={params.state_region ?? ""}
-            style={inputStyle}
-          >
+          <select name="state_region" defaultValue={params.state_region ?? ""} style={inputStyle}>
             <option value="">All States / Regions</option>
-            {STATE_REGION_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
+            {STATE_REGION_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
-
-          <input
-            type="number"
-            name="maxLeadTime"
-            defaultValue={params.maxLeadTime ?? ""}
-            placeholder="Max lead time (days)"
-            style={inputStyle}
-            min={0}
-          />
+          <input type="number" name="maxLeadTime" defaultValue={params.maxLeadTime ?? ""} placeholder="Max lead time (days)" style={inputStyle} min={0} />
         </div>
-
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-          <button type="submit" style={primaryButtonStyle}>
-            Search
-          </button>
-
-          <Link href="/dashboard/buyer/suppliers" style={secondaryLinkStyle}>
-            Reset
-          </Link>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <button type="submit" style={primaryButtonStyle}>Search</button>
+          <Link href="/dashboard/buyer/suppliers" style={secondaryLinkStyle}>Reset</Link>
         </div>
       </form>
 
-      <div style={{ marginBottom: "1rem", color: "#6b7280", fontSize: "0.9rem" }}>
+      {/* Result count */}
+      <div style={{ marginBottom: "12px", color: "var(--text-muted)", fontSize: "0.8125rem", fontFamily: "var(--font-mono)" }}>
         {suppliers.length} supplier{suppliers.length === 1 ? "" : "s"} found
       </div>
 
+      {/* Results */}
       {suppliers.length === 0 ? (
-        <div
-          style={{
-            backgroundColor: "white",
-            border: "1px solid #e5e7eb",
-            borderRadius: "0.75rem",
-            padding: "2rem",
-            textAlign: "center",
-          }}
-        >
-          <h2 style={{ fontSize: "1.1rem", fontWeight: 600, color: "#111827" }}>
+        <div style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", padding: "40px 24px", textAlign: "center" }}>
+          <h2 style={{ fontSize: "0.9375rem", fontWeight: 600, color: "var(--text)", marginBottom: "6px" }}>
             No suppliers matched your filters
           </h2>
-          <p
-            style={{
-              marginTop: "0.5rem",
-              color: "#6b7280",
-              fontSize: "0.95rem",
-            }}
-          >
+          <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
             Try broadening your search or clearing one of the filters.
           </p>
         </div>
       ) : (
-        <div
-          style={{
-            backgroundColor: "white",
-            border: "1px solid #e5e7eb",
-            borderRadius: "0.75rem",
-            overflowX: "auto",
-          }}
-        >
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              minWidth: "1200px",
-            }}
-          >
+        <div style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "1100px" }}>
             <thead>
-              <tr
-                style={{
-                  backgroundColor: "#f9fafb",
-                  borderBottom: "1px solid #e5e7eb",
-                }}
-              >
+              <tr style={{ backgroundColor: "var(--surface2)", borderBottom: "1px solid var(--border)" }}>
                 <TableHeader>Supplier</TableHeader>
                 <TableHeader>Location</TableHeader>
                 <TableHeader>Processes</TableHeader>
@@ -246,96 +112,41 @@ export default async function BuyerSuppliersPage({
                 <TableHeader>ITAR</TableHeader>
                 <TableHeader>Status</TableHeader>
                 <TableHeader>Website</TableHeader>
-                <TableHeader>View</TableHeader>
               </tr>
             </thead>
-
             <tbody>
               {suppliers.map((supplier) => {
                 const profile = supplier.supplier_profiles?.[0];
-
                 return (
-                  <tr
-                    key={supplier.id}
-                    style={{
-                      borderBottom: "1px solid #e5e7eb",
-                      verticalAlign: "top",
-                    }}
-                  >
+                  <tr key={supplier.id} style={{ borderBottom: "1px solid var(--border)", verticalAlign: "top" }}>
                     <TableCell>
-                      <div style={{ fontWeight: 600, color: "#111827" }}>
-                        {supplier.name}
-                      </div>
-                      {profile?.tagline ? (
-                        <div
-                          style={{
-                            marginTop: "0.35rem",
-                            fontSize: "0.8rem",
-                            color: "#6b7280",
-                            lineHeight: 1.4,
-                          }}
-                        >
-                          {profile.tagline}
+                      <Link href={`/dashboard/buyer/suppliers/${supplier.id}`} style={{ textDecoration: "none" }}>
+                        <div style={{ fontWeight: 600, color: "var(--brand)", fontSize: "0.9375rem" }}>
+                          {supplier.name}
                         </div>
-                      ) : null}
+                        {profile?.tagline && (
+                          <div style={{ marginTop: "4px", fontSize: "0.8125rem", color: "var(--text-muted)", lineHeight: 1.4 }}>
+                            {profile.tagline}
+                          </div>
+                        )}
+                      </Link>
                     </TableCell>
-
+                    <TableCell>{formatLocation(supplier.city, supplier.state_region)}</TableCell>
+                    <TableCell><CompactTagList values={profile?.processes} /></TableCell>
+                    <TableCell><CompactTagList values={profile?.materials} /></TableCell>
+                    <TableCell><CompactTagList values={profile?.certifications} /></TableCell>
+                    <TableCell><CompactTagList values={profile?.industries_served} /></TableCell>
                     <TableCell>
-                      {formatLocation(supplier.city, supplier.state_region)}
+                      {profile?.typical_lead_time_days != null ? `${profile.typical_lead_time_days}d` : "—"}
                     </TableCell>
-
-                    <TableCell>
-                      <CompactTagList values={profile?.processes} />
-                    </TableCell>
-
-                    <TableCell>
-                      <CompactTagList values={profile?.materials} />
-                    </TableCell>
-
-                    <TableCell>
-                      <CompactTagList values={profile?.certifications} />
-                    </TableCell>
-
-                    <TableCell>
-                      <CompactTagList values={profile?.industries_served} />
-                    </TableCell>
-
-                    <TableCell>
-                      {profile?.typical_lead_time_days != null
-                        ? `${profile.typical_lead_time_days} days`
-                        : "—"}
-                    </TableCell>
-
                     <TableCell>{profile?.itar_registered ? "Yes" : "No"}</TableCell>
-
-                    <TableCell>{profile?.profile_status ?? "Unknown"}</TableCell>
-
+                    <TableCell>{profile?.profile_status ?? "—"}</TableCell>
                     <TableCell>
                       {supplier.website ? (
-                        <a
-                          href={supplier.website}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{ color: "var(--brand)", textDecoration: "none" }}
-                        >
-                          Website
+                        <a href={supplier.website} target="_blank" rel="noreferrer" style={{ color: "var(--brand)", textDecoration: "none", fontSize: "0.875rem" }}>
+                          Visit →
                         </a>
-                      ) : (
-                        "—"
-                      )}
-                    </TableCell>
-
-                    <TableCell>
-                      <Link
-                        href={`/dashboard/buyer/suppliers/${supplier.id}`}
-                        style={{
-                          color: "var(--brand)",
-                          textDecoration: "none",
-                          fontWeight: 500,
-                        }}
-                      >
-                        View
-                      </Link>
+                      ) : "—"}
                     </TableCell>
                   </tr>
                 );
@@ -348,20 +159,16 @@ export default async function BuyerSuppliersPage({
   );
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
 function TableHeader({ children }: { children: ReactNode }) {
   return (
-    <th
-      style={{
-        textAlign: "left",
-        padding: "0.85rem 1rem",
-        fontSize: "0.75rem",
-        fontWeight: 700,
-        color: "#6b7280",
-        textTransform: "uppercase",
-        letterSpacing: "0.03em",
-        whiteSpace: "nowrap",
-      }}
-    >
+    <th style={{
+      textAlign: "left", padding: "10px 16px",
+      fontSize: "0.6875rem", fontWeight: 500, color: "var(--text-muted)",
+      textTransform: "uppercase", letterSpacing: "0.07em", whiteSpace: "nowrap",
+      fontFamily: "var(--font-mono)",
+    }}>
       {children}
     </th>
   );
@@ -369,38 +176,23 @@ function TableHeader({ children }: { children: ReactNode }) {
 
 function TableCell({ children }: { children: ReactNode }) {
   return (
-    <td
-      style={{
-        padding: "0.9rem 1rem",
-        fontSize: "0.875rem",
-        color: "#374151",
-        lineHeight: 1.5,
-      }}
-    >
+    <td style={{ padding: "12px 16px", fontSize: "0.875rem", color: "var(--text-muted)", lineHeight: 1.5 }}>
       {children}
     </td>
   );
 }
 
 function CompactTagList({ values }: { values: string[] | null | undefined }) {
-  if (!values || values.length === 0) {
-    return <span style={{ color: "#9ca3af" }}>—</span>;
-  }
-
+  if (!values || values.length === 0) return <span style={{ color: "var(--text-subtle)" }}>—</span>;
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
-      {values.map((value) => (
-        <span
-          key={value}
-          style={{
-            fontSize: "0.72rem",
-            padding: "0.2rem 0.45rem",
-            borderRadius: "9999px",
-            backgroundColor: "#f3f4f6",
-            color: "#374151",
-            whiteSpace: "nowrap",
-          }}
-        >
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+      {values.map(value => (
+        <span key={value} style={{
+          fontSize: "0.75rem", padding: "2px 7px",
+          backgroundColor: "var(--surface2)", color: "var(--text-muted)",
+          border: "1px solid var(--border2)", whiteSpace: "nowrap",
+          fontFamily: "var(--font-mono)",
+        }}>
           {value}
         </span>
       ))}
@@ -412,34 +204,35 @@ function formatLocation(city: string | null, stateRegion: string | null) {
   if (city && stateRegion) return `${city}, ${stateRegion}`;
   if (city) return city;
   if (stateRegion) return stateRegion;
-  return "Location not listed";
+  return "—";
 }
 
 const inputStyle: CSSProperties = {
   width: "100%",
-  padding: "0.75rem 0.875rem",
-  borderRadius: "0.5rem",
-  border: "1px solid #d1d5db",
-  fontSize: "0.9rem",
-  backgroundColor: "white",
+  padding: "8px 10px",
+  border: "1px solid var(--border2)",
+  fontSize: "0.875rem",
+  backgroundColor: "var(--surface2)",
+  color: "var(--text)",
+  outline: "none",
 };
 
 const primaryButtonStyle: CSSProperties = {
-  padding: "0.7rem 1rem",
-  borderRadius: "0.5rem",
+  padding: "8px 16px",
   border: "none",
   backgroundColor: "var(--brand)",
   color: "white",
   fontWeight: 600,
   cursor: "pointer",
+  fontSize: "0.875rem",
 };
 
 const secondaryLinkStyle: CSSProperties = {
-  padding: "0.7rem 1rem",
-  borderRadius: "0.5rem",
-  border: "1px solid #d1d5db",
-  backgroundColor: "white",
-  color: "#374151",
+  padding: "8px 16px",
+  border: "1px solid var(--border2)",
+  backgroundColor: "transparent",
+  color: "var(--text-muted)",
   fontWeight: 500,
   textDecoration: "none",
+  fontSize: "0.875rem",
 };

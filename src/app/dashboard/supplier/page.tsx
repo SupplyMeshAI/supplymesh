@@ -1,8 +1,53 @@
 // src/app/dashboard/supplier/page.tsx
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Award, TrendingUp, Settings, CheckCircle2, AlertCircle, Inbox } from "lucide-react";
+import { Award, TrendingUp, Settings, CheckCircle2, AlertCircle, Inbox, ChevronRight } from "lucide-react";
 import Link from "next/link";
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function StatCard({ label, value, sub, icon, accent, href }: {
+  label: string; value: string | number; sub?: string;
+  icon: React.ReactNode; accent: string; href?: string;
+}) {
+  const inner = (
+    <div style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", padding: "18px 20px", display: "flex", gap: "14px", alignItems: "center" }}>
+      <div style={{ width: "38px", height: "38px", backgroundColor: `${accent}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <span style={{ color: accent }}>{icon}</span>
+      </div>
+      <div>
+        <p style={{ fontSize: "1.75rem", fontWeight: 700, color: "var(--text)", lineHeight: 1, fontFamily: "var(--font-mono)" }}>{value}</p>
+        <p style={{ fontSize: "0.8125rem", color: "var(--text-muted)", marginTop: "5px" }}>{label}</p>
+        {sub && <p style={{ fontSize: "0.8125rem", color: "var(--text-muted)", marginTop: "2px" }}>{sub}</p>}
+      </div>
+    </div>
+  );
+  return href
+    ? <Link href={href} style={{ textDecoration: "none" }}>{inner}</Link>
+    : inner;
+}
+
+function SectionHeader({ title, href, count }: { title: string; href?: string; count?: number }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+      <h2 style={{ fontSize: "0.75rem", fontWeight: 500, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "8px", textTransform: "uppercase" as const, letterSpacing: "0.08em", fontFamily: "var(--font-mono)" }}>
+        {title}
+        {count !== undefined && (
+          <span style={{ fontSize: "0.75rem", fontWeight: 600, backgroundColor: "var(--surface2)", color: "var(--text-muted)", padding: "1px 7px", borderRadius: "2px", fontFamily: "var(--font-mono)" }}>
+            {count}
+          </span>
+        )}
+      </h2>
+      {href && (
+        <Link href={href} style={{ fontSize: "0.8125rem", color: "var(--brand)", textDecoration: "none", display: "flex", alignItems: "center", gap: "3px" }}>
+          View all <ChevronRight style={{ width: "13px", height: "13px" }} />
+        </Link>
+      )}
+    </div>
+  );
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function SupplierDashboardPage() {
   const supabase = await createClient();
@@ -10,69 +55,49 @@ export default async function SupplierDashboardPage() {
   if (!user) redirect("/auth/login");
 
   const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, email")
-    .eq("id", user.id)
-    .single();
+    .from("profiles").select("full_name, email").eq("id", user.id).single();
 
   const { data: memberData } = await supabase
     .from("company_members")
     .select("company:companies(id, name, city, state_region), company_id")
-    .eq("profile_id", user.id)
-    .single();
+    .eq("profile_id", user.id).single();
 
-  const company = (Array.isArray(memberData?.company) ? memberData.company[0] : memberData?.company) as { id: string; name: string; city: string; state_region: string } | null;
+  const company = (Array.isArray(memberData?.company) ? memberData.company[0] : memberData?.company) as
+    { id: string; name: string; city: string; state_region: string } | null;
 
   const { data: supplierProfile } = company
-    ? await supabase
-        .from("supplier_profiles")
-        .select("*")
-        .eq("company_id", company.id)
-        .single()
+    ? await supabase.from("supplier_profiles").select("*").eq("company_id", company.id).single()
     : { data: null };
 
-  // Count all active matches: matched + shortlisted + quoted
   const activeStatuses = ["matched", "shortlisted", "quoted"];
   const matchCounts = supplierProfile
-    ? await Promise.all(
-        activeStatuses.map(status =>
-          supabase
-            .from("rfq_matches")
-            .select("id", { count: "exact", head: true })
-            .eq("supplier_id", supplierProfile.id)
-            .eq("status", status)
-        )
-      )
+    ? await Promise.all(activeStatuses.map(status =>
+        supabase.from("rfq_matches").select("id", { count: "exact", head: true })
+          .eq("supplier_id", supplierProfile.id).eq("status", status)
+      ))
     : [];
-
   const matchCount = matchCounts.reduce((sum, r) => sum + (r.count ?? 0), 0);
 
   const shortlistedCount = supplierProfile
-    ? (await supabase
-        .from("rfq_matches")
-        .select("id", { count: "exact", head: true })
-        .eq("supplier_id", supplierProfile.id)
-        .eq("status", "shortlisted")).count ?? 0
+    ? (await supabase.from("rfq_matches").select("id", { count: "exact", head: true })
+        .eq("supplier_id", supplierProfile.id).eq("status", "shortlisted")).count ?? 0
     : 0;
 
   const quotedCount = supplierProfile
-    ? (await supabase
-        .from("rfq_matches")
-        .select("id", { count: "exact", head: true })
-        .eq("supplier_id", supplierProfile.id)
-        .eq("status", "quoted")).count ?? 0
+    ? (await supabase.from("rfq_matches").select("id", { count: "exact", head: true })
+        .eq("supplier_id", supplierProfile.id).eq("status", "quoted")).count ?? 0
     : 0;
 
   const firstName = profile?.full_name?.split(" ")[0] || "there";
   const completeness = supplierProfile?.completeness_score ?? 0;
 
   const tips = [
-    { done: (supplierProfile?.processes?.length ?? 0) > 0, label: "Add your manufacturing processes" },
-    { done: (supplierProfile?.materials?.length ?? 0) > 0, label: "List your materials" },
+    { done: (supplierProfile?.processes?.length ?? 0) > 0,      label: "Add your manufacturing processes" },
+    { done: (supplierProfile?.materials?.length ?? 0) > 0,      label: "List your materials" },
     { done: (supplierProfile?.certifications?.length ?? 0) > 0, label: "Add certifications" },
-    { done: supplierProfile?.typical_lead_time_days != null, label: "Set your typical lead time" },
-    { done: supplierProfile?.tagline != null, label: "Write a shop tagline" },
-    { done: supplierProfile?.description != null, label: "Add a shop description" },
+    { done: supplierProfile?.typical_lead_time_days != null,     label: "Set your typical lead time" },
+    { done: supplierProfile?.tagline != null,                    label: "Write a shop tagline" },
+    { done: supplierProfile?.description != null,                label: "Add a shop description" },
   ];
 
   const ctaSubtext = quotedCount > 0
@@ -82,160 +107,161 @@ export default async function SupplierDashboardPage() {
     : "Review your matches and get ready to quote";
 
   return (
-    <div style={{ maxWidth: "64rem", margin: "0 auto" }}>
+    <div style={{ maxWidth: "900px", margin: "0 auto" }}>
 
-        {/* Welcome */}
-        <div style={{ marginBottom: "2rem" }}>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#0f172a" }}>
-            Welcome back, {firstName}
-          </h1>
-          <p style={{ color: "#64748b", marginTop: "0.25rem", fontSize: "0.875rem" }}>
-            {company?.name} · {company?.city}, {company?.state_region}
-          </p>
-        </div>
+      {/* Greeting */}
+      <div style={{ marginBottom: "32px" }}>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--text)" }}>
+          Welcome back, {firstName}
+        </h1>
+        <p style={{ color: "var(--text-muted)", marginTop: "5px", fontSize: "0.9375rem" }}>
+          {company?.name}{company?.city ? ` · ${company.city}, ${company.state_region}` : ""}
+        </p>
+      </div>
 
-        {/* RFQ Inbox CTA */}
-        {matchCount > 0 && (
-          <Link href="/dashboard/supplier/rfqs" style={{ textDecoration: "none" }}>
-            <div style={{
-              backgroundColor: "var(--brand)", borderRadius: "0.75rem",
-              padding: "1rem 1.5rem", marginBottom: "1.5rem",
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              cursor: "pointer",
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.875rem" }}>
-                <div style={{ backgroundColor: "rgba(255,255,255,0.15)", padding: "0.5rem", borderRadius: "0.5rem" }}>
-                  <Inbox style={{ width: "1.25rem", height: "1.25rem", color: "white" }} />
-                </div>
-                <div>
-                  <p style={{ fontWeight: 600, color: "white", fontSize: "0.95rem" }}>
-                    You have {matchCount} active RFQ{matchCount !== 1 ? "s" : ""}
-                  </p>
-                  <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.75)", marginTop: "0.1rem" }}>
-                    {ctaSubtext}
-                  </p>
-                </div>
-              </div>
-              <span style={{ color: "rgba(255,255,255,0.85)", fontSize: "1.25rem" }}>→</span>
-            </div>
-          </Link>
-        )}
-
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1.5rem" }}>
-
-          {/* Profile completeness */}
+      {/* RFQ inbox CTA banner */}
+      {matchCount > 0 && (
+        <Link href="/dashboard/supplier/rfqs" style={{ textDecoration: "none" }}>
           <div style={{
-            backgroundColor: "white", borderRadius: "0.75rem",
-            border: "1px solid #e2e8f0", padding: "1.5rem",
+            backgroundColor: "var(--brand)", padding: "16px 20px", marginBottom: "28px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
           }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-              <h2 style={{ fontWeight: 600, color: "#0f172a" }}>Profile completeness</h2>
-              <span style={{
-                fontSize: "1.5rem", fontWeight: "bold",
-                color: completeness >= 70 ? "var(--brand)" : "#d97706",
-              }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+              <div style={{ backgroundColor: "rgba(255,255,255,0.15)", padding: "8px" }}>
+                <Inbox style={{ width: "1.25rem", height: "1.25rem", color: "white" }} />
+              </div>
+              <div>
+                <p style={{ fontWeight: 600, color: "white", fontSize: "0.9375rem" }}>
+                  You have {matchCount} active RFQ{matchCount !== 1 ? "s" : ""}
+                </p>
+                <p style={{ fontSize: "0.8125rem", color: "rgba(255,255,255,0.8)", marginTop: "3px" }}>
+                  {ctaSubtext}
+                </p>
+              </div>
+            </div>
+            <ChevronRight style={{ width: "1.25rem", height: "1.25rem", color: "rgba(255,255,255,0.85)" }} />
+          </div>
+        </Link>
+      )}
+
+      {/* Stats strip */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginBottom: "32px" }}>
+        <StatCard
+          label="Active RFQs" value={matchCount}
+          sub={shortlistedCount > 0 ? `${shortlistedCount} shortlisted` : undefined}
+          icon={<Award style={{ width: "1.1rem", height: "1.1rem" }} />}
+          accent="#3b82f6" href="/dashboard/supplier/rfqs"
+        />
+        <StatCard
+          label="Quotes Submitted" value={quotedCount}
+          icon={<TrendingUp style={{ width: "1.1rem", height: "1.1rem" }} />}
+          accent="#22c55e"
+        />
+        <StatCard
+          label="Profile Complete" value={`${completeness}%`}
+          icon={<Settings style={{ width: "1.1rem", height: "1.1rem" }} />}
+          accent={completeness >= 70 ? "#22c55e" : "#f59e0b"}
+          href="/profile/supplier"
+        />
+      </div>
+
+      {/* Two-column layout */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "20px", alignItems: "start" }}>
+
+        {/* Left — Profile completeness */}
+        <div>
+          <SectionHeader title="Profile Completeness" href="/profile/supplier" />
+          <div style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", padding: "24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+              <p style={{ fontSize: "0.9375rem", fontWeight: 600, color: "var(--text)" }}>
+                {completeness >= 70 ? "Looking good!" : "Complete your profile to get more matches"}
+              </p>
+              <span style={{ fontSize: "1.25rem", fontWeight: 700, fontFamily: "var(--font-mono)", color: completeness >= 70 ? "var(--green)" : "var(--amber)" }}>
                 {completeness}%
               </span>
             </div>
 
-            <div style={{ height: "0.5rem", backgroundColor: "#f1f5f9", borderRadius: "9999px", marginBottom: "1.25rem", overflow: "hidden" }}>
+            <div style={{ height: "4px", backgroundColor: "var(--surface2)", marginBottom: "20px", overflow: "hidden" }}>
               <div style={{
-                height: "100%", borderRadius: "9999px",
-                backgroundColor: completeness >= 70 ? "var(--brand)" : "#f59e0b",
-                width: `${completeness}%`, transition: "width 0.3s",
+                height: "100%",
+                backgroundColor: completeness >= 70 ? "var(--green)" : "var(--amber)",
+                width: `${completeness}%`,
+                transition: "width 0.3s",
               }} />
             </div>
 
-            <p style={{ fontSize: "0.75rem", fontWeight: 500, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>
-              Complete your profile to get matched with more RFQs
-            </p>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {tips.map((tip, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.625rem", fontSize: "0.875rem" }}>
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   {tip.done
-                    ? <CheckCircle2 style={{ width: "1rem", height: "1rem", color: "var(--brand)", flexShrink: 0 }} />
-                    : <AlertCircle style={{ width: "1rem", height: "1rem", color: "#d1d5db", flexShrink: 0 }} />
+                    ? <CheckCircle2 style={{ width: "16px", height: "16px", color: "var(--green)", flexShrink: 0 }} />
+                    : <AlertCircle style={{ width: "16px", height: "16px", color: "var(--text-subtle)", flexShrink: 0 }} />
                   }
-                  <span style={{ color: tip.done ? "#94a3b8" : "#374151", textDecoration: tip.done ? "line-through" : "none" }}>
+                  <span style={{ fontSize: "0.9375rem", color: tip.done ? "var(--text-muted)" : "var(--text)", textDecoration: tip.done ? "line-through" : "none" }}>
                     {tip.label}
                   </span>
                 </div>
               ))}
             </div>
 
-            <div style={{ marginTop: "1.25rem" }}>
-              <Link href="/profile/supplier" style={{
-                display: "inline-flex", alignItems: "center",
-                padding: "0.5rem 1rem", borderRadius: "0.5rem",
-                fontSize: "0.875rem", fontWeight: 600,
-                color: "white", backgroundColor: "var(--brand)", textDecoration: "none",
-              }}>
+            <div style={{ marginTop: "20px" }}>
+              <Link href="/profile/supplier" className="btn-primary">
                 Edit profile →
               </Link>
             </div>
           </div>
-
-          {/* Stats */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-
-            <Link href="/dashboard/supplier/rfqs" style={{ textDecoration: "none" }}>
-              <div style={{
-                backgroundColor: "white", borderRadius: "0.75rem",
-                border: "1px solid #e2e8f0", padding: "1.25rem", cursor: "pointer",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.25rem" }}>
-                  <div style={{ padding: "0.375rem", borderRadius: "0.5rem", backgroundColor: "var(--brand-light)" }}>
-                    <Award style={{ width: "1rem", height: "1rem", color: "var(--brand)" }} />
-                  </div>
-                  <span style={{ fontSize: "0.875rem", fontWeight: 500, color: "#374151" }}>Active RFQs</span>
-                </div>
-                <div style={{ fontSize: "1.875rem", fontWeight: "bold", color: "#0f172a", marginTop: "0.5rem" }}>
-                  {matchCount}
-                </div>
-                <div style={{ fontSize: "0.75rem", color: "var(--brand)", marginTop: "0.15rem" }}>
-                  View inbox →
-                </div>
-              </div>
-            </Link>
-
-            <div style={{ backgroundColor: "white", borderRadius: "0.75rem", border: "1px solid #e2e8f0", padding: "1.25rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.25rem" }}>
-                <div style={{ padding: "0.375rem", borderRadius: "0.5rem", backgroundColor: "var(--brand-light)" }}>
-                  <TrendingUp style={{ width: "1rem", height: "1rem", color: "var(--brand)" }} />
-                </div>
-                <span style={{ fontSize: "0.875rem", fontWeight: 500, color: "#374151" }}>Win Rate</span>
-              </div>
-              <div style={{ fontSize: "1.875rem", fontWeight: "bold", color: "#0f172a", marginTop: "0.5rem" }}>—</div>
-              <div style={{ fontSize: "0.75rem", color: "#94a3b8" }}>Coming in Phase 5</div>
-            </div>
-
-            <div style={{ backgroundColor: "white", borderRadius: "0.75rem", border: "1px solid #e2e8f0", padding: "1.25rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
-                <div style={{ padding: "0.375rem", borderRadius: "0.5rem", backgroundColor: "var(--brand-light)" }}>
-                  <Settings style={{ width: "1rem", height: "1rem", color: "var(--brand)" }} />
-                </div>
-                <span style={{ fontSize: "0.875rem", fontWeight: 500, color: "#374151" }}>Processes</span>
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.375rem" }}>
-                {(supplierProfile?.processes ?? []).length > 0
-                  ? supplierProfile?.processes.slice(0, 4).map((p: string) => (
-                      <span key={p} style={{
-                        display: "inline-flex", alignItems: "center", borderRadius: "0.375rem",
-                        padding: "0.125rem 0.5rem", fontSize: "0.75rem", fontWeight: 500,
-                        backgroundColor: "var(--brand-light)", color: "var(--brand)",
-                        border: "1px solid rgba(23,54,80,0.15)",
-                      }}>
-                        {p.replace(/_/g, " ")}
-                      </span>
-                    ))
-                  : <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>None added yet</span>
-                }
-              </div>
-            </div>
-
-          </div>
         </div>
+
+        {/* Right — Processes + quick links */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+
+          <div>
+            <SectionHeader title="Your Processes" href="/profile/supplier" />
+            <div style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", padding: "18px 20px" }}>
+              {(supplierProfile?.processes ?? []).length > 0 ? (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                  {supplierProfile?.processes.map((p: string) => (
+                    <span key={p} style={{
+                      display: "inline-flex", alignItems: "center",
+                      padding: "3px 9px", fontSize: "0.75rem", fontWeight: 500,
+                      backgroundColor: "var(--brand-light)", color: "var(--brand)",
+                      border: "1px solid var(--brand-mid)", fontFamily: "var(--font-mono)",
+                    }}>
+                      {p.replace(/_/g, " ")}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>
+                  No processes added yet.{" "}
+                  <Link href="/profile/supplier" style={{ color: "var(--brand)", textDecoration: "none" }}>Add them →</Link>
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <SectionHeader title="Quick Links" />
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              {[
+                { href: "/dashboard/supplier/rfqs", label: "RFQ Inbox",    sub: `${matchCount} active` },
+                { href: "/profile/supplier",         label: "Edit Profile", sub: `${completeness}% complete` },
+              ].map(({ href, label, sub }) => (
+                <Link key={href} href={href} style={{ textDecoration: "none" }}>
+                  <div style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", padding: "14px 18px", display: "flex", alignItems: "center", gap: "12px" }}>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontWeight: 600, fontSize: "0.9375rem", color: "var(--text)" }}>{label}</p>
+                      <p style={{ fontSize: "0.8125rem", color: "var(--text-muted)", marginTop: "3px" }}>{sub}</p>
+                    </div>
+                    <ChevronRight style={{ width: "14px", height: "14px", color: "var(--text-muted)", flexShrink: 0 }} />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 }

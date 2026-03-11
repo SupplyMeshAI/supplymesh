@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2 } from "lucide-react";
@@ -33,42 +32,75 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f0f4f8] flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+    <div style={{
+      minHeight: "100vh",
+      backgroundColor: "var(--bg)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "24px",
+    }}>
+      <div style={{ width: "100%", maxWidth: "360px" }}>
 
         {/* Logo */}
-        <div className="mb-8 text-center">
-          <Link href="/" className="inline-flex items-center justify-center">
-            <Image
-              src="/brand/logo-full-dark.svg"
+        <div style={{ marginBottom: "32px", textAlign: "center" }}>
+          <Link href="/" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/logo-full-white.svg"
               alt="SupplyMesh"
-              width={180}
-              height={42}
-              className="h-10 w-auto"
-              priority
+              style={{ height: "50px", width: "auto" }}
             />
           </Link>
-          <p className="mt-3 text-sm text-slate-500">Sign in to your account</p>
+          <p style={{ marginTop: "10px", fontSize: "0.9375rem", color: "var(--text-muted)" }}>
+            Sign in to your account
+          </p>
         </div>
 
-        <div className="card p-6">
-          <form onSubmit={handleLogin} className="space-y-4">
+        {/* Card */}
+        <div style={{
+          backgroundColor: "var(--surface)",
+          border: "1px solid var(--border)",
+          padding: "28px",
+        }}>
+          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+
+            {/* Email */}
             <div>
-              <label className="label">Email address</label>
+              <label style={{
+                display: "block", fontSize: "0.6875rem", fontWeight: 500,
+                color: "var(--text-muted)", textTransform: "uppercase",
+                letterSpacing: "0.07em", marginBottom: "6px",
+                fontFamily: "var(--font-mono)",
+              }}>
+                Email address
+              </label>
               <input
                 type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input"
+                onChange={e => setEmail(e.target.value)}
                 placeholder="you@company.com"
+                style={{
+                  width: "100%", padding: "8px 10px",
+                  border: "1px solid var(--border2)", backgroundColor: "var(--surface2)",
+                  color: "var(--text)", fontSize: "0.875rem", outline: "none",
+                  boxSizing: "border-box" as const,
+                }}
               />
             </div>
 
+            {/* Password */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="label" style={{ marginBottom: 0 }}>Password</label>
-                <Link href="#" className="text-xs text-[#173650] hover:text-[#142f46]">
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                <label style={{
+                  fontSize: "0.6875rem", fontWeight: 500,
+                  color: "var(--text-muted)", textTransform: "uppercase",
+                  letterSpacing: "0.07em", fontFamily: "var(--font-mono)",
+                }}>
+                  Password
+                </label>
+                <Link href="#" style={{ fontSize: "0.75rem", color: "var(--brand)", textDecoration: "none" }}>
                   Forgot password?
                 </Link>
               </div>
@@ -76,30 +108,54 @@ export default function LoginPage() {
                 type="password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input"
+                onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
+                style={{
+                  width: "100%", padding: "8px 10px",
+                  border: "1px solid var(--border2)", backgroundColor: "var(--surface2)",
+                  color: "var(--text)", fontSize: "0.875rem", outline: "none",
+                  boxSizing: "border-box" as const,
+                }}
               />
             </div>
 
+            {/* Error */}
             {error && (
-              <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2.5 text-sm text-red-700">
+              <div style={{
+                padding: "10px 12px", fontSize: "0.875rem",
+                backgroundColor: "rgba(239,68,68,0.1)",
+                border: "1px solid rgba(239,68,68,0.3)",
+                color: "var(--red)",
+              }}>
                 {error}
               </div>
             )}
 
-            <button type="submit" disabled={loading} className="btn-primary w-full">
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: "100%", padding: "9px 16px",
+                fontSize: "0.875rem", fontWeight: 600,
+                color: "white", backgroundColor: "var(--brand)",
+                border: "none", cursor: loading ? "not-allowed" : "pointer",
+                opacity: loading ? 0.7 : 1,
+                display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
+              }}
+            >
               {loading
-                ? <><Loader2 className="w-4 h-4 animate-spin" /> Signing in...</>
+                ? <><Loader2 style={{ width: "1rem", height: "1rem" }} className="animate-spin" /> Signing in...</>
                 : "Sign in"
               }
             </button>
           </form>
         </div>
 
-        <p className="mt-4 text-center text-sm text-slate-500">
+        {/* Sign up link */}
+        <p style={{ marginTop: "16px", textAlign: "center", fontSize: "0.875rem", color: "var(--text-muted)" }}>
           Don&apos;t have an account?{" "}
-          <Link href="/auth/signup" className="text-[#173650] font-medium hover:text-[#142f46]">
+          <Link href="/auth/signup" style={{ color: "var(--brand)", fontWeight: 500, textDecoration: "none" }}>
             Sign up
           </Link>
         </p>

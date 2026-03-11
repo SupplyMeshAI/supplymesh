@@ -6,16 +6,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import {
-  Loader2,
-  Plus,
-  FileText,
-  Clock,
-  CheckCircle2,
-  Send,
-  XCircle,
-  Search,
-  ChevronRight,
-  AlertCircle,
+  Loader2, Plus, FileText, Clock, CheckCircle2,
+  Send, XCircle, Search, ChevronRight,
 } from "lucide-react";
 import type { Rfq, RfqStatus } from "@/lib/rfqs/types";
 
@@ -25,38 +17,38 @@ import type { Rfq, RfqStatus } from "@/lib/rfqs/types";
 const STATUS_CONFIG: Record<RfqStatus, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
   draft: {
     label: "Draft",
-    color: "#94a3b8",
-    bg: "#f1f5f9",
+    color: "var(--text-muted)",
+    bg: "var(--surface2)",
     icon: <FileText style={{ width: "0.85rem", height: "0.85rem" }} />,
   },
   submitted: {
     label: "Submitted",
-    color: "#3b82f6",
-    bg: "#eff6ff",
+    color: "#60a5fa",
+    bg: "rgba(59,130,246,0.12)",
     icon: <Send style={{ width: "0.85rem", height: "0.85rem" }} />,
   },
   matching: {
     label: "Matching",
-    color: "#f59e0b",
-    bg: "#fffbeb",
+    color: "var(--amber)",
+    bg: "rgba(245,158,11,0.12)",
     icon: <Search style={{ width: "0.85rem", height: "0.85rem" }} />,
   },
   shortlisted: {
     label: "Shortlisted",
     color: "var(--brand)",
-    bg: "var(--brand-light)",
+    bg: "rgba(37,99,235,0.12)",
     icon: <CheckCircle2 style={{ width: "0.85rem", height: "0.85rem" }} />,
   },
   closed: {
     label: "Closed",
-    color: "#10b981",
-    bg: "#ecfdf5",
+    color: "var(--green)",
+    bg: "rgba(34,197,94,0.1)",
     icon: <CheckCircle2 style={{ width: "0.85rem", height: "0.85rem" }} />,
   },
   cancelled: {
     label: "Cancelled",
-    color: "#ef4444",
-    bg: "#fef2f2",
+    color: "var(--red)",
+    bg: "rgba(239,68,68,0.12)",
     icon: <XCircle style={{ width: "0.85rem", height: "0.85rem" }} />,
   },
 };
@@ -79,257 +71,190 @@ export default function RfqListPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/auth/login"); return; }
 
-      // Get user's company
       const { data: membership } = await supabase
-        .from("company_members")
-        .select("company_id")
-        .eq("profile_id", user.id)
-        .single();
-
+        .from("company_members").select("company_id").eq("profile_id", user.id).single();
       if (!membership) { router.push("/auth/onboarding"); return; }
 
-      // Fetch all RFQs for this company
       const { data, error } = await supabase
-        .from("rfqs")
-        .select("*")
-        .eq("company_id", membership.company_id)
+        .from("rfqs").select("*").eq("company_id", membership.company_id)
         .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Error loading RFQs:", error);
-      } else {
-        setRfqs(data || []);
-      }
+      if (!error) setRfqs(data || []);
       setLoading(false);
     }
     loadRfqs();
   }, [router]);
 
-  // ============================================================================
-  // Filter & search
-  // ============================================================================
   const filtered = rfqs.filter(rfq => {
     if (filter !== "all" && rfq.status !== filter) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      const matchesProject = rfq.project_name?.toLowerCase().includes(q);
-      const matchesPart = rfq.part_name?.toLowerCase().includes(q);
-      if (!matchesProject && !matchesPart) return false;
+      if (!rfq.project_name?.toLowerCase().includes(q) && !rfq.part_name?.toLowerCase().includes(q)) return false;
     }
     return true;
   });
 
-  // Count by status for filter badges
   const counts: Record<string, number> = { all: rfqs.length };
   rfqs.forEach(r => { counts[r.status] = (counts[r.status] || 0) + 1; });
 
-  // ============================================================================
-  // Delete draft
-  // ============================================================================
   async function deleteDraft(rfqId: string) {
     if (!confirm("Delete this draft? This can't be undone.")) return;
     const supabase = createClient();
     const { error } = await supabase.from("rfqs").delete().eq("id", rfqId);
-    if (!error) {
-      setRfqs(prev => prev.filter(r => r.id !== rfqId));
-    }
+    if (!error) setRfqs(prev => prev.filter(r => r.id !== rfqId));
   }
 
-  // ============================================================================
-  // Render
-  // ============================================================================
-  if (loading) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
-        <Loader2 style={{ width: "1.5rem", height: "1.5rem", color: "var(--brand)" }} className="animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
+      <Loader2 style={{ width: "1.5rem", height: "1.5rem", color: "var(--brand)" }} className="animate-spin" />
+    </div>
+  );
 
   return (
-    <div style={{ maxWidth: "900px", margin: "0 auto", padding: "2rem 1rem" }}>
+    <div style={{ maxWidth: "900px", margin: "0 auto" }}>
 
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
         <div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0f172a" }}>
-            Your RFQs
-          </h1>
-          <p style={{ fontSize: "0.875rem", color: "#64748b", marginTop: "0.25rem" }}>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--text)" }}>Your RFQs</h1>
+          <p style={{ fontSize: "0.9375rem", color: "var(--text-muted)", marginTop: "5px" }}>
             {rfqs.length} total · {counts["draft"] || 0} drafts · {counts["submitted"] || 0} submitted
           </p>
         </div>
-        <Link href="/dashboard/buyer/rfqs/new" className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", textDecoration: "none" }}>
+        <Link href="/dashboard/buyer/rfqs/new" style={{
+          display: "inline-flex", alignItems: "center", gap: "6px",
+          padding: "7px 16px", fontSize: "0.875rem", fontWeight: 600,
+          color: "white", backgroundColor: "var(--brand)", textDecoration: "none",
+        }}>
           <Plus style={{ width: "1rem", height: "1rem" }} />
           New RFQ
         </Link>
       </div>
 
-      {/* Search & Filters */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1.5rem" }}>
-        {/* Search */}
-        <div style={{ position: "relative" }}>
-          <Search style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", width: "1rem", height: "1rem", color: "#94a3b8" }} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="input"
-            placeholder="Search by project or part name..."
-            style={{ paddingLeft: "2.25rem" }}
-          />
-        </div>
-
-        {/* Status filter tabs */}
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-          {(["all", "draft", "submitted", "matching", "shortlisted", "closed"] as FilterStatus[]).map(s => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setFilter(s)}
-              style={{
-                padding: "0.35rem 0.75rem",
-                borderRadius: "0.5rem",
-                fontSize: "0.8rem",
-                fontWeight: 500,
-                border: filter === s ? "1px solid var(--brand)" : "1px solid #e2e8f0",
-                backgroundColor: filter === s ? "var(--brand-light)" : "white",
-                color: filter === s ? "var(--brand)" : "#64748b",
-                cursor: "pointer",
-                textTransform: "capitalize",
-              }}
-            >
-              {s === "all" ? "All" : s} {counts[s] ? `(${counts[s]})` : ""}
-            </button>
-          ))}
-        </div>
+      {/* Search */}
+      <div style={{ position: "relative", marginBottom: "10px" }}>
+        <Search style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", width: "1rem", height: "1rem", color: "var(--text-muted)" }} />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="Search by project or part name..."
+          style={{
+            width: "100%", padding: "8px 10px 8px 34px",
+            border: "1px solid var(--border2)", backgroundColor: "var(--surface2)",
+            color: "var(--text)", fontSize: "0.875rem", outline: "none",
+            boxSizing: "border-box" as const,
+          }}
+        />
       </div>
 
-      {/* RFQ List */}
+      {/* Status filter tabs */}
+      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "20px" }}>
+        {(["all", "draft", "submitted", "matching", "shortlisted", "closed"] as FilterStatus[]).map(s => {
+          const active = filter === s;
+          return (
+            <button key={s} type="button" onClick={() => setFilter(s)} style={{
+              padding: "5px 12px", fontSize: "0.8125rem", fontWeight: 500,
+              border: active ? "1px solid var(--brand)" : "1px solid var(--border)",
+              backgroundColor: active ? "rgba(37,99,235,0.1)" : "var(--surface)",
+              color: active ? "var(--brand)" : "var(--text-muted)",
+              cursor: "pointer", textTransform: "capitalize",
+            }}>
+              {s === "all" ? "All" : s}{counts[s] ? ` (${counts[s]})` : ""}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* RFQ list */}
       {filtered.length === 0 ? (
-        <div className="card" style={{ padding: "3rem 2rem", textAlign: "center" }}>
-          <FileText style={{ width: "2.5rem", height: "2.5rem", color: "#cbd5e1", margin: "0 auto 0.75rem" }} />
+        <div style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", padding: "48px 24px", textAlign: "center" }}>
+          <FileText style={{ width: "2.5rem", height: "2.5rem", color: "var(--text-subtle)", margin: "0 auto 12px" }} />
           {rfqs.length === 0 ? (
             <>
-              <p style={{ fontWeight: 600, color: "#334155", marginBottom: "0.25rem" }}>No RFQs yet</p>
-              <p style={{ fontSize: "0.875rem", color: "#64748b", marginBottom: "1rem" }}>
+              <p style={{ fontWeight: 600, color: "var(--text)", marginBottom: "6px" }}>No RFQs yet</p>
+              <p style={{ fontSize: "0.875rem", color: "var(--text-muted)", marginBottom: "16px" }}>
                 Create your first RFQ to start finding matched suppliers.
               </p>
-              <Link href="/dashboard/buyer/rfqs/new" className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", textDecoration: "none" }}>
-                <Plus style={{ width: "1rem", height: "1rem" }} />
-                Create RFQ
+              <Link href="/dashboard/buyer/rfqs/new" style={{
+                display: "inline-flex", alignItems: "center", gap: "6px",
+                padding: "7px 16px", fontSize: "0.875rem", fontWeight: 600,
+                color: "white", backgroundColor: "var(--brand)", textDecoration: "none",
+              }}>
+                <Plus style={{ width: "1rem", height: "1rem" }} /> Create RFQ
               </Link>
             </>
           ) : (
             <>
-              <p style={{ fontWeight: 600, color: "#334155", marginBottom: "0.25rem" }}>No matching RFQs</p>
-              <p style={{ fontSize: "0.875rem", color: "#64748b" }}>
-                Try a different filter or search term.
-              </p>
+              <p style={{ fontWeight: 600, color: "var(--text)", marginBottom: "6px" }}>No matching RFQs</p>
+              <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>Try a different filter or search term.</p>
             </>
           )}
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
           {filtered.map(rfq => {
-            const config = STATUS_CONFIG[rfq.status];
+            const config  = STATUS_CONFIG[rfq.status];
             const isDraft = rfq.status === "draft";
             const processCount = rfq.processes_required?.length || 0;
-            const certCount = rfq.certifications_required?.length || 0;
+            const certCount    = rfq.certifications_required?.length || 0;
 
             return (
               <div
                 key={rfq.id}
-                className="card"
+                onClick={() => router.push(isDraft ? `/dashboard/buyer/rfqs/new?draft=${rfq.id}` : `/dashboard/buyer/rfqs/${rfq.id}`)}
                 style={{
-                  padding: "1rem 1.25rem",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1rem",
+                  backgroundColor: "var(--surface)", border: "1px solid var(--border)",
+                  padding: "14px 18px", cursor: "pointer",
+                  display: "flex", alignItems: "center", gap: "14px",
+                  transition: "border-color 0.1s",
                 }}
-                onClick={() => {
-                  if (isDraft) {
-                    router.push(`/dashboard/buyer/rfqs/new?draft=${rfq.id}`);
-                  } else {
-                    router.push(`/dashboard/buyer/rfqs/${rfq.id}`);
-                  }
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = "var(--brand)";
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)";
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = "";
-                  (e.currentTarget as HTMLElement).style.transform = "";
-                }}
+                onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = "var(--brand)"}
+                onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = "var(--border)"}
               >
-                {/* Left: info */}
+                {/* Info */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
-                    <span style={{ fontWeight: 600, color: "#0f172a", fontSize: "0.95rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                    <span style={{ fontWeight: 600, color: "var(--text)", fontSize: "0.9375rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {rfq.part_name || rfq.project_name || "Untitled RFQ"}
                     </span>
-                    {/* Status badge */}
                     <span style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "0.3rem",
-                      padding: "0.15rem 0.5rem",
-                      borderRadius: "9999px",
-                      fontSize: "0.7rem",
-                      fontWeight: 600,
-                      color: config.color,
-                      backgroundColor: config.bg,
-                      flexShrink: 0,
+                      display: "inline-flex", alignItems: "center", gap: "4px",
+                      padding: "2px 7px", fontSize: "0.75rem", fontWeight: 600,
+                      color: config.color, backgroundColor: config.bg,
+                      flexShrink: 0, fontFamily: "var(--font-mono)",
                     }}>
-                      {config.icon}
-                      {config.label}
+                      {config.icon}{config.label}
                     </span>
                   </div>
-
-                  {/* Subtitle row */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", fontSize: "0.8rem", color: "#94a3b8" }}>
-                    {rfq.project_name && rfq.part_name && (
-                      <span>{rfq.project_name}</span>
-                    )}
-                    {processCount > 0 && (
-                      <span>{processCount} process{processCount !== 1 ? "es" : ""}</span>
-                    )}
-                    {certCount > 0 && (
-                      <span>{certCount} cert{certCount !== 1 ? "s" : ""}</span>
-                    )}
-                    {rfq.lot_size && (
-                      <span>{rfq.lot_size}</span>
-                    )}
-                    <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "0.8125rem", color: "var(--text-muted)" }}>
+                    {rfq.project_name && rfq.part_name && <span>{rfq.project_name}</span>}
+                    {processCount > 0 && <span>{processCount} process{processCount !== 1 ? "es" : ""}</span>}
+                    {certCount > 0 && <span>{certCount} cert{certCount !== 1 ? "s" : ""}</span>}
+                    {rfq.lot_size && <span>{rfq.lot_size}</span>}
+                    <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                       <Clock style={{ width: "0.7rem", height: "0.7rem" }} />
                       {formatDate(isDraft ? rfq.updated_at : rfq.submitted_at || rfq.created_at)}
                     </span>
                   </div>
                 </div>
 
-                {/* Right: actions */}
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
+                {/* Actions */}
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
                   {isDraft && (
                     <button
                       type="button"
                       onClick={e => { e.stopPropagation(); deleteDraft(rfq.id); }}
                       style={{
-                        padding: "0.3rem 0.6rem",
-                        fontSize: "0.75rem",
-                        color: "#ef4444",
-                        background: "none",
-                        border: "1px solid #fecaca",
-                        borderRadius: "0.375rem",
-                        cursor: "pointer",
+                        padding: "3px 8px", fontSize: "0.75rem",
+                        color: "var(--red)", background: "none",
+                        border: "1px solid rgba(239,68,68,0.3)", cursor: "pointer",
                       }}
                     >
                       Delete
                     </button>
                   )}
-                  <ChevronRight style={{ width: "1rem", height: "1rem", color: "#cbd5e1" }} />
+                  <ChevronRight style={{ width: "1rem", height: "1rem", color: "var(--text-subtle)" }} />
                 </div>
               </div>
             );
@@ -345,16 +270,15 @@ export default function RfqListPage() {
 // ============================================================================
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "";
-  const d = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - d.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return "just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
+  const d    = new Date(dateStr);
+  const now  = new Date();
+  const diff = now.getTime() - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  const hrs  = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (mins < 1)  return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  if (hrs < 24)  return `${hrs}h ago`;
+  if (days < 7)  return `${days}d ago`;
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }

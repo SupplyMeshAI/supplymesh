@@ -16,9 +16,9 @@ export default async function BuyerLayout({
   if (!user) redirect("/auth/login");
 
   return (
-    <div className="min-h-screen bg-[#f0f4f8]">
-      <AppNavbar />
-      <main className="mx-auto max-w-6xl px-6 py-10">
+    <div style={{ minHeight: "100vh", backgroundColor: "var(--bg)" }}>
+      <AppNavbar role="buyer" />
+      <main style={{ maxWidth: "900px", margin: "0 auto", padding: "28px 24px" }}>
         {children}
       </main>
     </div>

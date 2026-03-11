@@ -36,7 +36,7 @@ const STATUS_CONFIG: Record<RfqStatus, {
   label: string; color: string; bg: string; border: string;
   icon: React.ReactNode; description: string;
 }> = {
-  draft: { label: "Draft", color: "#64748b", bg: "#f8fafc", border: "#e2e8f0", icon: <FileText style={{ width: "1rem", height: "1rem" }} />, description: "This RFQ has not been submitted yet." },
+  draft: { label: "Draft", color: "var(--text-muted)", bg: "#f8fafc", border: "#e2e8f0", icon: <FileText style={{ width: "1rem", height: "1rem" }} />, description: "This RFQ has not been submitted yet." },
   submitted: { label: "Submitted", color: "#3b82f6", bg: "#eff6ff", border: "#bfdbfe", icon: <Send style={{ width: "1rem", height: "1rem" }} />, description: "Your RFQ has been submitted and is being reviewed." },
   matching: { label: "Matching in Progress", color: "#f59e0b", bg: "#fffbeb", border: "#fde68a", icon: <Search style={{ width: "1rem", height: "1rem" }} />, description: "We're finding the best suppliers for your requirements." },
   shortlisted: { label: "Suppliers Shortlisted", color: "#8b5cf6", bg: "#f5f3ff", border: "#ddd6fe", icon: <CheckCircle2 style={{ width: "1rem", height: "1rem" }} />, description: "Matched suppliers have been shortlisted and notified." },
@@ -45,7 +45,7 @@ const STATUS_CONFIG: Record<RfqStatus, {
 };
 
 const PRIORITY_CONFIG = {
-  low: { label: "Low", color: "#64748b", bg: "#f1f5f9" },
+  low: { label: "Low", color: "var(--text-muted)", bg: "#f1f5f9" },
   standard: { label: "Standard", color: "#3b82f6", bg: "#eff6ff" },
   urgent: { label: "Urgent", color: "#ef4444", bg: "#fef2f2" },
 };
@@ -86,8 +86,8 @@ function getCompany(match: MatchWithCompany) {
 function ScoreRing({ score }: { score: number }) {
   const color = score >= 75 ? "#10b981" : score >= 50 ? "#f59e0b" : "#94a3b8";
   return (
-    <div style={{ width: "3rem", height: "3rem", borderRadius: "9999px", border: `3px solid ${color}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, backgroundColor: `${color}18` }}>
-      <span style={{ fontSize: "0.8rem", fontWeight: 700, color }}>{score}</span>
+    <div style={{ width: "3rem", height: "3rem", borderRadius: "2px", border: `3px solid ${color}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, backgroundColor: `${color}18` }}>
+      <span style={{ fontSize: "0.6875rem", fontWeight: 700, color }}>{score}</span>
     </div>
   );
 }
@@ -106,7 +106,7 @@ function MatchCard({ match, onShortlist, shortlisting }: {
   return (
     <div className="card" style={{
       padding: "1rem 1.25rem",
-      border: isShortlisted ? "1px solid var(--brand)" : isQuoted ? "1px solid #bbf7d0" : "1px solid #e2e8f0",
+      border: isShortlisted ? "1px solid var(--brand)" : isQuoted ? "1px solid #bbf7d0" : "1px solid var(--border)",
       backgroundColor: isShortlisted ? "var(--brand-light)" : isQuoted ? "#f0fdf4" : "white",
       transition: "all 0.15s ease",
     }}>
@@ -114,22 +114,22 @@ function MatchCard({ match, onShortlist, shortlisting }: {
         <ScoreRing score={match.match_score} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-            <span style={{ fontWeight: 600, fontSize: "0.95rem", color: "#0f172a" }}>
+            <span style={{ fontWeight: 600, fontSize: "0.8125rem", color: "var(--text)" }}>
               {company?.name || "Unknown Supplier"}
             </span>
             {isShortlisted && (
-              <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "var(--brand)", backgroundColor: "white", border: "1px solid var(--brand)", padding: "0.1rem 0.5rem", borderRadius: "9999px" }}>
+              <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "var(--brand)", backgroundColor: "var(--surface)", border: "1px solid var(--brand)", padding: "0.1rem 0.5rem", borderRadius: "2px" }}>
                 Shortlisted
               </span>
             )}
             {isQuoted && (
-              <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "#16a34a", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", padding: "0.1rem 0.5rem", borderRadius: "9999px" }}>
+              <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "#16a34a", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", padding: "0.1rem 0.5rem", borderRadius: "2px" }}>
                 ✓ Quote submitted
               </span>
             )}
           </div>
           {company?.city && (
-            <p style={{ fontSize: "0.8rem", color: "#64748b", marginTop: "0.15rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+            <p style={{ fontSize: "0.6875rem", color: "var(--text-muted)", marginTop: "0.15rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
               <MapPin style={{ width: "0.7rem", height: "0.7rem" }} />
               {company.city}{company.state_region ? `, ${company.state_region}` : ""}
             </p>
@@ -138,13 +138,13 @@ function MatchCard({ match, onShortlist, shortlisting }: {
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
           {!isShortlisted && !isQuoted && (
             <button type="button" onClick={() => onShortlist(match.id)} disabled={shortlisting === match.id}
-              style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem", fontWeight: 500, color: "var(--brand)", background: "white", border: "1px solid var(--brand)", borderRadius: "0.5rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+              style={{ padding: "0.35rem 0.75rem", fontSize: "0.6875rem", fontWeight: 500, color: "var(--brand)", background: "white", border: "1px solid var(--brand)", borderRadius: "2px", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}>
               {shortlisting === match.id ? <Loader2 style={{ width: "0.75rem", height: "0.75rem" }} className="animate-spin" /> : <Star style={{ width: "0.75rem", height: "0.75rem" }} />}
               Shortlist
             </button>
           )}
           <button type="button" onClick={() => setExpanded(e => !e)}
-            style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: "0.25rem" }}>
+            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", padding: "0.25rem" }}>
             {expanded ? <ChevronUp style={{ width: "1rem", height: "1rem" }} /> : <ChevronDown style={{ width: "1rem", height: "1rem" }} />}
           </button>
         </div>
@@ -152,12 +152,12 @@ function MatchCard({ match, onShortlist, shortlisting }: {
 
       {expanded && match.match_details?.length > 0 && (
         <div style={{ marginTop: "0.875rem", paddingTop: "0.875rem", borderTop: "1px solid #f1f5f9" }}>
-          <p style={{ fontSize: "0.75rem", fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>
+          <p style={{ fontSize: "0.625rem", fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>
             Why this match
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
             {match.match_details.map((reason, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.825rem", color: "#334155" }}>
+              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.7rem", color: "var(--text)" }}>
                 <CheckCircle2 style={{ width: "0.85rem", height: "0.85rem", color: "#10b981", flexShrink: 0, marginTop: "0.1rem" }} />
                 {reason}
               </div>
@@ -165,7 +165,7 @@ function MatchCard({ match, onShortlist, shortlisting }: {
           </div>
           {company?.website && (
             <a href={company.website.startsWith("http") ? company.website : `https://${company.website}`} target="_blank" rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", marginTop: "0.75rem", fontSize: "0.8rem", color: "var(--brand)", textDecoration: "none" }}>
+              style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", marginTop: "0.75rem", fontSize: "0.6875rem", color: "var(--brand)", textDecoration: "none" }}>
               Visit website →
             </a>
           )}
@@ -183,63 +183,63 @@ function QuoteCard({ quote }: { quote: Quote }) {
   const totalValue = quote.unit_price * quote.lot_size;
 
   return (
-    <div className="card" style={{ padding: "1.25rem 1.5rem", border: "1px solid #e2e8f0" }}>
+    <div className="card" style={{ padding: "1.25rem 1.5rem", border: "1px solid var(--border)" }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem", flexWrap: "wrap" }}>
         <div>
-          <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "#0f172a" }}>
+          <p style={{ fontWeight: 600, fontSize: "0.8125rem", color: "var(--text)" }}>
             {quote.supplier_company_name || "Unknown Supplier"}
           </p>
           {quote.supplier_location && (
-            <p style={{ fontSize: "0.8rem", color: "#64748b", marginTop: "0.15rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+            <p style={{ fontSize: "0.6875rem", color: "var(--text-muted)", marginTop: "0.15rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
               <MapPin style={{ width: "0.7rem", height: "0.7rem" }} />
               {quote.supplier_location}
             </p>
           )}
         </div>
         {isExpired ? (
-          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "#ef4444", backgroundColor: "#fef2f2", border: "1px solid #fecaca", padding: "0.15rem 0.5rem", borderRadius: "9999px", flexShrink: 0 }}>
+          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "#ef4444", backgroundColor: "#fef2f2", border: "1px solid #fecaca", padding: "0.15rem 0.5rem", borderRadius: "2px", flexShrink: 0 }}>
             Expired
           </span>
         ) : quote.valid_until ? (
-          <span style={{ fontSize: "0.72rem", color: "#64748b", flexShrink: 0 }}>
+          <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", flexShrink: 0 }}>
             Valid until {formatDateShort(quote.valid_until)}
           </span>
         ) : null}
       </div>
 
       {/* Stats grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem", marginTop: "1rem", padding: "1rem", backgroundColor: "#f8fafc", borderRadius: "0.625rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem", marginTop: "1rem", padding: "1rem", backgroundColor: "var(--surface2)", borderRadius: "2px" }}>
         <div>
           <p style={labelStyle}>Unit price</p>
-          <p style={{ fontWeight: 700, fontSize: "1.2rem", color: "#0f172a", marginTop: "0.2rem" }}>
+          <p style={{ fontWeight: 700, fontSize: "1.2rem", color: "var(--text)", marginTop: "0.2rem" }}>
             ${quote.unit_price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
-          <p style={{ fontSize: "0.7rem", color: "#94a3b8" }}>per unit</p>
+          <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>per unit</p>
         </div>
         <div>
           <p style={labelStyle}>Lead time</p>
-          <p style={{ fontWeight: 700, fontSize: "1.2rem", color: "#0f172a", marginTop: "0.2rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
-            <Clock style={{ width: "0.875rem", height: "0.875rem", color: "#94a3b8" }} />
+          <p style={{ fontWeight: 700, fontSize: "1.2rem", color: "var(--text)", marginTop: "0.2rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+            <Clock style={{ width: "0.875rem", height: "0.875rem", color: "var(--text-muted)" }} />
             {quote.lead_time_days}
           </p>
-          <p style={{ fontSize: "0.7rem", color: "#94a3b8" }}>days</p>
+          <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>days</p>
         </div>
         <div>
           <p style={labelStyle}>Lot size</p>
-          <p style={{ fontWeight: 700, fontSize: "1.2rem", color: "#0f172a", marginTop: "0.2rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
-            <Package style={{ width: "0.875rem", height: "0.875rem", color: "#94a3b8" }} />
+          <p style={{ fontWeight: 700, fontSize: "1.2rem", color: "var(--text)", marginTop: "0.2rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+            <Package style={{ width: "0.875rem", height: "0.875rem", color: "var(--text-muted)" }} />
             {quote.lot_size.toLocaleString()}
           </p>
-          <p style={{ fontSize: "0.7rem", color: "#94a3b8" }}>units</p>
+          <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>units</p>
         </div>
       </div>
 
       {/* Total value */}
       <div style={{ marginTop: "0.625rem", display: "flex", justifyContent: "flex-end" }}>
-        <p style={{ fontSize: "0.85rem", color: "#64748b" }}>
+        <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
           Total order value:{" "}
-          <span style={{ fontWeight: 700, color: "#0f172a" }}>
+          <span style={{ fontWeight: 700, color: "var(--text)" }}>
             ${totalValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </p>
@@ -251,11 +251,11 @@ function QuoteCard({ quote }: { quote: Quote }) {
           <p style={{ ...labelStyle, marginBottom: "0.35rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
             <MessageSquare style={{ width: "0.75rem", height: "0.75rem" }} /> Supplier notes
           </p>
-          <p style={{ fontSize: "0.875rem", color: "#334155", lineHeight: 1.6 }}>{quote.notes}</p>
+          <p style={{ fontSize: "0.875rem", color: "var(--text)", lineHeight: 1.6 }}>{quote.notes}</p>
         </div>
       )}
 
-      <p style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: "0.875rem" }}>
+      <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: "0.875rem" }}>
         Received {formatRelative(quote.created_at)}
       </p>
     </div>
@@ -472,14 +472,14 @@ export default function RfqDetailPage() {
 
       {/* Success banner */}
       {showSubmittedBanner && (
-        <div style={{ marginBottom: "1.5rem", padding: "0.875rem 1.25rem", borderRadius: "0.75rem", backgroundColor: "#ecfdf5", border: "1px solid #a7f3d0", display: "flex", alignItems: "center", gap: "0.75rem", color: "#065f46", fontSize: "0.9rem", fontWeight: 500 }}>
+        <div style={{ marginBottom: "1.5rem", padding: "0.875rem 1.25rem", borderRadius: "0", backgroundColor: "#ecfdf5", border: "1px solid #a7f3d0", display: "flex", alignItems: "center", gap: "0.75rem", color: "#065f46", fontSize: "0.9rem", fontWeight: 500 }}>
           <CheckCircle2 style={{ width: "1.25rem", height: "1.25rem", color: "#10b981", flexShrink: 0 }} />
           RFQ submitted successfully! We&apos;ll begin matching you with suppliers shortly.
         </div>
       )}
 
       {/* Back nav */}
-      <Link href="/dashboard/buyer/rfqs" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", fontSize: "0.875rem", color: "#64748b", textDecoration: "none", marginBottom: "1.25rem" }}>
+      <Link href="/dashboard/buyer/rfqs" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", fontSize: "0.875rem", color: "var(--text-muted)", textDecoration: "none", marginBottom: "1.25rem" }}>
         <ArrowLeft style={{ width: "1rem", height: "1rem" }} /> Back to RFQs
       </Link>
 
@@ -487,11 +487,11 @@ export default function RfqDetailPage() {
       <div className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
           <div>
-            <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#0f172a", marginBottom: "0.25rem" }}>
+            <h1 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text)", marginBottom: "0.25rem" }}>
               {rfq.part_name || rfq.project_name || "Untitled RFQ"}
             </h1>
             {rfq.project_name && rfq.part_name && (
-              <p style={{ fontSize: "0.875rem", color: "#64748b" }}>{rfq.project_name}</p>
+              <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>{rfq.project_name}</p>
             )}
           </div>
           <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexShrink: 0 }}>
@@ -502,7 +502,7 @@ export default function RfqDetailPage() {
             )}
             {isCancellable && (
               <button type="button" onClick={handleCancel} disabled={cancelling}
-                style={{ padding: "0.4rem 0.875rem", fontSize: "0.8rem", color: "#ef4444", background: "white", border: "1px solid #fecaca", borderRadius: "0.5rem", cursor: "pointer" }}>
+                style={{ padding: "0.4rem 0.875rem", fontSize: "0.6875rem", color: "#ef4444", background: "white", border: "1px solid #fecaca", borderRadius: "2px", cursor: "pointer" }}>
                 {cancelling ? "Cancelling..." : "Cancel RFQ"}
               </button>
             )}
@@ -510,16 +510,16 @@ export default function RfqDetailPage() {
         </div>
 
         {/* Status bar */}
-        <div style={{ marginTop: "1.25rem", padding: "0.875rem 1rem", borderRadius: "0.625rem", backgroundColor: statusCfg.bg, border: `1px solid ${statusCfg.border}`, display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        <div style={{ marginTop: "1.25rem", padding: "0.875rem 1rem", borderRadius: "2px", backgroundColor: statusCfg.bg, border: `1px solid ${statusCfg.border}`, display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <span style={{ color: statusCfg.color }}>{statusCfg.icon}</span>
           <div>
             <p style={{ fontWeight: 600, fontSize: "0.9rem", color: statusCfg.color }}>{statusCfg.label}</p>
-            <p style={{ fontSize: "0.8rem", color: "#64748b", marginTop: "0.1rem" }}>{statusCfg.description}</p>
+            <p style={{ fontSize: "0.6875rem", color: "var(--text-muted)", marginTop: "0.1rem" }}>{statusCfg.description}</p>
           </div>
-          <div style={{ marginLeft: "auto", textAlign: "right", fontSize: "0.8rem", color: "#94a3b8" }}>
+          <div style={{ marginLeft: "auto", textAlign: "right", fontSize: "0.6875rem", color: "var(--text-muted)" }}>
             {rfq.submitted_at
-              ? <><p>Submitted</p><p style={{ fontWeight: 500, color: "#64748b" }}>{formatDate(rfq.submitted_at)}</p></>
-              : <><p>Created</p><p style={{ fontWeight: 500, color: "#64748b" }}>{formatDate(rfq.created_at)}</p></>
+              ? <><p>Submitted</p><p style={{ fontWeight: 500, color: "var(--text-muted)" }}>{formatDate(rfq.submitted_at)}</p></>
+              : <><p>Created</p><p style={{ fontWeight: 500, color: "var(--text-muted)" }}>{formatDate(rfq.created_at)}</p></>
             }
           </div>
         </div>
@@ -530,7 +530,7 @@ export default function RfqDetailPage() {
           <QuickStat icon={<Award style={{ width: "0.85rem", height: "0.85rem" }} />} label="Certifications" value={rfq.certifications_required?.length ? `${rfq.certifications_required.length} required` : "None"} />
           <QuickStat icon={<Package style={{ width: "0.85rem", height: "0.85rem" }} />} label="Lot size" value={rfq.lot_size || "Not specified"} />
           <QuickStat icon={<Zap style={{ width: "0.85rem", height: "0.85rem" }} />} label="Priority"
-            value={<span style={{ color: priorityCfg.color, backgroundColor: priorityCfg.bg, padding: "0.1rem 0.5rem", borderRadius: "9999px", fontSize: "0.75rem", fontWeight: 600 }}>{priorityCfg.label}</span>}
+            value={<span style={{ color: priorityCfg.color, backgroundColor: priorityCfg.bg, padding: "0.1rem 0.5rem", borderRadius: "2px", fontSize: "0.625rem", fontWeight: 600 }}>{priorityCfg.label}</span>}
           />
           {showMatches && (
             <QuickStat icon={<Building2 style={{ width: "0.85rem", height: "0.85rem" }} />} label="Matches"
@@ -551,9 +551,9 @@ export default function RfqDetailPage() {
               const active = activePanel === tab;
               return (
                 <button key={tab} type="button" onClick={() => { setActivePanel(tab); if (tab === "quotes") loadQuotes(); }} style={{
-                  padding: "0.375rem 0.875rem", borderRadius: "0.5rem", fontSize: "0.85rem",
+                  padding: "0.375rem 0.875rem", borderRadius: "2px", fontSize: "0.85rem",
                   fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem",
-                  border: active ? "1px solid var(--brand)" : "1px solid #e2e8f0",
+                  border: active ? "1px solid var(--brand)" : "1px solid var(--border)",
                   backgroundColor: active ? "var(--brand-light)" : "white",
                   color: active ? "var(--brand)" : "#64748b",
                   transition: "all 0.15s ease",
@@ -564,7 +564,7 @@ export default function RfqDetailPage() {
                   }
                   {count > 0 && (
                     <span style={{
-                      fontSize: "0.72rem", fontWeight: 600, padding: "0.05rem 0.4rem", borderRadius: "9999px",
+                      fontSize: "0.72rem", fontWeight: 600, padding: "0.05rem 0.4rem", borderRadius: "2px",
                       backgroundColor: active ? "var(--brand)" : "#e2e8f0",
                       color: active ? "white" : "#64748b",
                     }}>{count}</span>
@@ -575,7 +575,7 @@ export default function RfqDetailPage() {
 
             {activePanel === "matches" && (
               <button type="button" onClick={handleRerunMatching} disabled={rerunning}
-                style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.8rem", color: "#64748b", background: "none", border: "1px solid #e2e8f0", borderRadius: "0.5rem", padding: "0.3rem 0.65rem", cursor: "pointer" }}>
+                style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.6875rem", color: "var(--text-muted)", background: "none", border: "1px solid var(--border)", borderRadius: "2px", padding: "0.3rem 0.65rem", cursor: "pointer" }}>
                 <RefreshCw style={{ width: "0.75rem", height: "0.75rem" }} className={rerunning ? "animate-spin" : ""} />
                 {rerunning ? "Running..." : "Re-run"}
               </button>
@@ -591,8 +591,8 @@ export default function RfqDetailPage() {
             ) : matches.length === 0 ? (
               <div style={{ textAlign: "center", padding: "2rem 1rem" }}>
                 <Building2 style={{ width: "2rem", height: "2rem", color: "#cbd5e1", margin: "0 auto 0.75rem" }} />
-                <p style={{ fontWeight: 600, color: "#334155", marginBottom: "0.25rem" }}>No matches yet</p>
-                <p style={{ fontSize: "0.875rem", color: "#64748b", marginBottom: "1rem" }}>
+                <p style={{ fontWeight: 600, color: "var(--text)", marginBottom: "0.25rem" }}>No matches yet</p>
+                <p style={{ fontSize: "0.875rem", color: "var(--text-muted)", marginBottom: "1rem" }}>
                   No suppliers currently match your requirements.
                 </p>
                 <button type="button" onClick={handleRerunMatching} disabled={rerunning} className="btn-primary" style={{ fontSize: "0.875rem" }}>
@@ -601,10 +601,10 @@ export default function RfqDetailPage() {
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
-                <div style={{ display: "flex", gap: "1rem", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>
+                <div style={{ display: "flex", gap: "1rem", fontSize: "0.625rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>
                   {[["#10b981", "75–100 Strong"], ["#f59e0b", "50–74 Good"], ["#94a3b8", "<50 Partial"]].map(([color, label]) => (
                     <span key={label} style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                      <span style={{ width: "0.6rem", height: "0.6rem", borderRadius: "9999px", backgroundColor: color, display: "inline-block" }} /> {label}
+                      <span style={{ width: "0.6rem", height: "0.6rem", borderRadius: "2px", backgroundColor: color, display: "inline-block" }} /> {label}
                     </span>
                   ))}
                 </div>
@@ -624,14 +624,14 @@ export default function RfqDetailPage() {
             ) : quotes.length === 0 ? (
               <div style={{ textAlign: "center", padding: "2.5rem 1rem" }}>
                 <DollarSign style={{ width: "2rem", height: "2rem", color: "#cbd5e1", margin: "0 auto 0.75rem" }} />
-                <p style={{ fontWeight: 600, color: "#334155", marginBottom: "0.25rem" }}>No quotes yet</p>
-                <p style={{ fontSize: "0.875rem", color: "#64748b" }}>
+                <p style={{ fontWeight: 600, color: "var(--text)", marginBottom: "0.25rem" }}>No quotes yet</p>
+                <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>
                   Shortlisted suppliers will be able to submit quotes. Check back here once they respond.
                 </p>
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
-                <p style={{ fontSize: "0.8rem", color: "#64748b" }}>
+                <p style={{ fontSize: "0.6875rem", color: "var(--text-muted)" }}>
                   {quotes.length} quote{quotes.length !== 1 ? "s" : ""} received · sorted by most recent
                 </p>
                 {quotes.map(quote => <QuoteCard key={quote.id} quote={quote} />)}
@@ -657,8 +657,8 @@ export default function RfqDetailPage() {
                 {rfq.processes_required.map((p, i) => {
                   const isRequired = rfq.processes_required_flags?.[i] === "required";
                   return (
-                    <span key={p} style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.25rem 0.625rem", borderRadius: "9999px", fontSize: "0.8rem", fontWeight: 500, backgroundColor: isRequired ? "var(--brand-light)" : "#f1f5f9", color: isRequired ? "var(--brand)" : "#475569", border: isRequired ? "1px solid var(--brand)" : "1px solid #e2e8f0" }}>
-                      {isRequired ? <Lock style={{ width: "0.65rem", height: "0.65rem" }} /> : <Star style={{ width: "0.65rem", height: "0.65rem", color: "#94a3b8" }} />}
+                    <span key={p} style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.25rem 0.625rem", borderRadius: "2px", fontSize: "0.6875rem", fontWeight: 500, backgroundColor: isRequired ? "var(--brand-light)" : "#f1f5f9", color: isRequired ? "var(--brand)" : "#475569", border: isRequired ? "1px solid var(--brand)" : "1px solid var(--border)" }}>
+                      {isRequired ? <Lock style={{ width: "0.65rem", height: "0.65rem" }} /> : <Star style={{ width: "0.65rem", height: "0.65rem", color: "var(--text-muted)" }} />}
                       {PROCESSES[p] || p}
                     </span>
                   );
@@ -686,8 +686,8 @@ export default function RfqDetailPage() {
                 {rfq.certifications_required.map((c, i) => {
                   const isRequired = rfq.certifications_required_flags?.[i] === "required";
                   return (
-                    <span key={c} style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.25rem 0.625rem", borderRadius: "9999px", fontSize: "0.8rem", fontWeight: 500, backgroundColor: isRequired ? "var(--brand-light)" : "#f1f5f9", color: isRequired ? "var(--brand)" : "#475569", border: isRequired ? "1px solid var(--brand)" : "1px solid #e2e8f0" }}>
-                      {isRequired ? <Lock style={{ width: "0.65rem", height: "0.65rem" }} /> : <Star style={{ width: "0.65rem", height: "0.65rem", color: "#94a3b8" }} />}
+                    <span key={c} style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.25rem 0.625rem", borderRadius: "2px", fontSize: "0.6875rem", fontWeight: 500, backgroundColor: isRequired ? "var(--brand-light)" : "#f1f5f9", color: isRequired ? "var(--brand)" : "#475569", border: isRequired ? "1px solid var(--brand)" : "1px solid var(--border)" }}>
+                      {isRequired ? <Lock style={{ width: "0.65rem", height: "0.65rem" }} /> : <Star style={{ width: "0.65rem", height: "0.65rem", color: "var(--text-muted)" }} />}
                       {CERTIFICATIONS[c] || c}
                     </span>
                   );
@@ -706,7 +706,7 @@ export default function RfqDetailPage() {
               <p style={labelStyle}>Preferred regions</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginTop: "0.4rem" }}>
                 {rfq.preferred_regions.map(r => (
-                  <span key={r} style={{ padding: "0.25rem 0.625rem", borderRadius: "9999px", fontSize: "0.8rem", fontWeight: 500, backgroundColor: "#f1f5f9", color: "#475569", border: "1px solid #e2e8f0" }}>{r}</span>
+                  <span key={r} style={{ padding: "0.25rem 0.625rem", borderRadius: "2px", fontSize: "0.6875rem", fontWeight: 500, backgroundColor: "var(--surface2)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>{r}</span>
                 ))}
               </div>
             </div>
@@ -719,7 +719,7 @@ export default function RfqDetailPage() {
       </div>
 
       {/* Legend */}
-      <div style={{ marginTop: "1.5rem", display: "flex", gap: "1.25rem", fontSize: "0.75rem", color: "#94a3b8" }}>
+      <div style={{ marginTop: "1.5rem", display: "flex", gap: "1.25rem", fontSize: "0.625rem", color: "var(--text-muted)" }}>
         <span style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}><Lock style={{ width: "0.65rem", height: "0.65rem" }} /> Non-negotiable</span>
         <span style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}><Star style={{ width: "0.65rem", height: "0.65rem" }} /> Preferred</span>
       </div>
@@ -731,14 +731,14 @@ export default function RfqDetailPage() {
 // Sub-components
 // ============================================================================
 const labelStyle: React.CSSProperties = {
-  fontSize: "0.75rem", fontWeight: 600, color: "#94a3b8",
+  fontSize: "0.625rem", fontWeight: 600, color: "var(--text-muted)",
   textTransform: "uppercase", letterSpacing: "0.05em",
 };
 
 function DetailSection({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="card" style={{ padding: "1.25rem 1.5rem" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem", color: "#334155" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem", color: "var(--text)" }}>
         {icon}<h2 style={{ fontSize: "0.9rem", fontWeight: 600 }}>{title}</h2>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem 1.5rem" }}>{children}</div>
@@ -754,20 +754,20 @@ function DetailRow({ label, value, note, wide, icon }: {
   return (
     <div style={{ gridColumn: wide ? "1 / -1" : "auto" }}>
       <p style={labelStyle}>{label}</p>
-      <p style={{ fontSize: "0.875rem", color: "#1e293b", fontWeight: 500, marginTop: "0.2rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
-        {icon && <span style={{ color: "#94a3b8" }}>{icon}</span>}{value}
+      <p style={{ fontSize: "0.875rem", color: "var(--text)", fontWeight: 500, marginTop: "0.2rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+        {icon && <span style={{ color: "var(--text-muted)" }}>{icon}</span>}{value}
       </p>
-      {note && <p style={{ fontSize: "0.7rem", color: "#94a3b8", marginTop: "0.1rem" }}>{note}</p>}
+      {note && <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.1rem" }}>{note}</p>}
     </div>
   );
 }
 
 function QuickStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem" }}>
-      <span style={{ color: "#94a3b8" }}>{icon}</span>
-      <span style={{ color: "#64748b" }}>{label}:</span>
-      <span style={{ fontWeight: 600, color: "#334155" }}>{value}</span>
+    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.6875rem" }}>
+      <span style={{ color: "var(--text-muted)" }}>{icon}</span>
+      <span style={{ color: "var(--text-muted)" }}>{label}:</span>
+      <span style={{ fontWeight: 600, color: "var(--text)" }}>{value}</span>
     </div>
   );
 }

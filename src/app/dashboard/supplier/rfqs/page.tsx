@@ -99,18 +99,18 @@ function ScoreRing({ score }: { score: number }) {
 function MatchCard({ item }: { item: InboxItem }) {
   const [expanded, setExpanded] = useState(false);
   const { rfq, buyer_company } = item;
-  const isShortlisted = item.status === "shortlisted";
-  const isQuoted      = item.status === "quoted";
-  const priority      = rfq?.priority
+  const isInvited = item.status === "shortlisted";
+  const isQuoted  = item.status === "quoted";
+  const priority  = rfq?.priority
     ? (PRIORITY_CONFIG[rfq.priority] ?? PRIORITY_CONFIG.standard)
     : PRIORITY_CONFIG.standard;
   const processes      = rfq?.processes_required?.slice(0, 3) ?? [];
   const extraProcesses = Math.max(0, (rfq?.processes_required?.length ?? 0) - 3);
 
-  const cardBorder = isShortlisted ? "1px solid var(--brand)"
+  const cardBorder = isInvited ? "1px solid var(--brand)"
     : isQuoted ? "1px solid var(--green)"
     : "1px solid var(--border)";
-  const cardBg = isShortlisted ? "rgba(37,99,235,0.07)"
+  const cardBg = isInvited ? "rgba(37,99,235,0.07)"
     : isQuoted ? "rgba(34,197,94,0.07)"
     : "var(--surface)";
 
@@ -129,14 +129,14 @@ function MatchCard({ item }: { item: InboxItem }) {
                     {rfq?.part_name || rfq?.project_name || "Untitled RFQ"}
                   </h3>
                 </Link>
-                {isShortlisted && (
+                {isInvited && (
                   <span style={{
                     display: "inline-flex", alignItems: "center", gap: "4px",
                     fontSize: "0.6875rem", fontWeight: 600, color: "var(--brand)",
                     backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid var(--brand)",
                     padding: "1px 7px",
                   }}>
-                    <Star style={{ width: "0.6rem", height: "0.6rem" }} /> Shortlisted
+                    <Star style={{ width: "0.6rem", height: "0.6rem" }} /> Invited to Quote
                   </span>
                 )}
                 {isQuoted && (
@@ -295,7 +295,7 @@ export default function SupplierRfqInboxPage() {
   const router = useRouter();
   const [items, setItems] = useState<InboxItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"all" | "shortlisted">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "invited" | "quoted">("all");
 
   useEffect(() => {
     async function load() {
@@ -349,10 +349,19 @@ export default function SupplierRfqInboxPage() {
     load();
   }, [router]);
 
-  const filtered = activeTab === "shortlisted"
-    ? items.filter(i => i.status === "shortlisted" || i.status === "quoted")
-    : items;
-  const shortlistedCount = items.filter(i => i.status === "shortlisted" || i.status === "quoted").length;
+  const invitedCount = items.filter(i => i.status === "shortlisted").length;
+  const quotedCount  = items.filter(i => i.status === "quoted").length;
+
+  const filtered =
+    activeTab === "invited" ? items.filter(i => i.status === "shortlisted") :
+    activeTab === "quoted"  ? items.filter(i => i.status === "quoted") :
+    items;
+
+  const TABS: { value: "all" | "invited" | "quoted"; label: string; count: number }[] = [
+    { value: "all",     label: "All Matches",      count: items.length },
+    { value: "invited", label: "Invited to Quote", count: invitedCount },
+    { value: "quoted",  label: "Quotes Submitted", count: quotedCount },
+  ];
 
   if (loading) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
@@ -367,24 +376,23 @@ export default function SupplierRfqInboxPage() {
       <div style={{ marginBottom: "24px" }}>
         <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--text)" }}>RFQ Inbox</h1>
         <p style={{ fontSize: "0.9375rem", color: "var(--text-muted)", marginTop: "5px" }}>
-          {items.length} active · {shortlistedCount} shortlisted or quoted
+          {items.length} matched · {invitedCount} invited to quote · {quotedCount} quotes submitted
         </p>
       </div>
 
       {/* Tabs */}
       <div style={{ display: "flex", gap: "6px", marginBottom: "16px" }}>
-        {(["all", "shortlisted"] as const).map(tab => {
-          const count  = tab === "all" ? items.length : shortlistedCount;
-          const active = activeTab === tab;
+        {TABS.map(({ value, label, count }) => {
+          const active = activeTab === value;
           return (
-            <button key={tab} type="button" onClick={() => setActiveTab(tab)} style={{
+            <button key={value} type="button" onClick={() => setActiveTab(value)} style={{
               padding: "6px 14px", fontSize: "0.875rem", fontWeight: 500,
               cursor: "pointer", display: "flex", alignItems: "center", gap: "6px",
               border: active ? "1px solid var(--brand)" : "1px solid var(--border)",
               backgroundColor: active ? "rgba(37,99,235,0.1)" : "var(--surface)",
               color: active ? "var(--brand)" : "var(--text-muted)",
             }}>
-              {tab === "all" ? "All Matches" : "Shortlisted & Quoted"}
+              {label}
               {count > 0 && (
                 <span style={{
                   fontSize: "0.75rem", fontWeight: 600, padding: "1px 6px",
@@ -404,9 +412,9 @@ export default function SupplierRfqInboxPage() {
       {filtered.length > 0 && (
         <div style={{ display: "flex", gap: "14px", fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "12px" }}>
           {[
-            ["var(--green)",      "75–100 Strong"],
-            ["var(--amber)",      "50–74 Good"],
-            ["var(--text-subtle)","<50 Partial"],
+            ["var(--green)",       "75–100 Strong"],
+            ["var(--amber)",       "50–74 Good"],
+            ["var(--text-subtle)", "<50 Partial"],
           ].map(([color, label]) => (
             <span key={label} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
               <span style={{ width: "10px", height: "10px", backgroundColor: color, display: "inline-block" }} />
@@ -422,12 +430,20 @@ export default function SupplierRfqInboxPage() {
           backgroundColor: "var(--surface)", border: "1px solid var(--border)",
           padding: "48px 24px", textAlign: "center",
         }}>
-          {activeTab === "shortlisted" ? (
+          {activeTab === "invited" ? (
             <>
               <Star style={{ width: "2.5rem", height: "2.5rem", color: "var(--text-subtle)", margin: "0 auto 12px" }} />
-              <p style={{ fontWeight: 600, color: "var(--text)", marginBottom: "6px" }}>No shortlisted RFQs yet</p>
+              <p style={{ fontWeight: 600, color: "var(--text)", marginBottom: "6px" }}>No invitations yet</p>
               <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>
-                Buyers will shortlist you when your profile matches their needs.
+                Buyers will invite you to quote when your profile matches their needs.
+              </p>
+            </>
+          ) : activeTab === "quoted" ? (
+            <>
+              <CheckCircle2 style={{ width: "2.5rem", height: "2.5rem", color: "var(--text-subtle)", margin: "0 auto 12px" }} />
+              <p style={{ fontWeight: 600, color: "var(--text)", marginBottom: "6px" }}>No quotes submitted yet</p>
+              <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>
+                Quotes you submit will appear here.
               </p>
             </>
           ) : (

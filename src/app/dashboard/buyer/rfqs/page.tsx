@@ -7,14 +7,14 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import {
   Loader2, Plus, FileText, Clock, CheckCircle2,
-  Send, XCircle, Search, ChevronRight,
+  Send, XCircle, Search, ChevronRight, Sparkles,
 } from "lucide-react";
 import type { Rfq, RfqStatus } from "@/lib/rfqs/types";
 
 // ============================================================================
 // Status config
 // ============================================================================
-const STATUS_CONFIG: Record<RfqStatus, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
+const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
   draft: {
     label: "Draft",
     color: "var(--text-muted)",
@@ -32,6 +32,12 @@ const STATUS_CONFIG: Record<RfqStatus, { label: string; color: string; bg: strin
     color: "var(--amber)",
     bg: "rgba(245,158,11,0.12)",
     icon: <Search style={{ width: "0.85rem", height: "0.85rem" }} />,
+  },
+  matched: {
+    label: "Matching Complete",
+    color: "var(--green)",
+    bg: "rgba(34,197,94,0.12)",
+    icon: <Sparkles style={{ width: "0.85rem", height: "0.85rem" }} />,
   },
   shortlisted: {
     label: "Shortlisted",
@@ -53,7 +59,7 @@ const STATUS_CONFIG: Record<RfqStatus, { label: string; color: string; bg: strin
   },
 };
 
-type FilterStatus = "all" | RfqStatus;
+type FilterStatus = string;
 
 // ============================================================================
 // Component
@@ -97,8 +103,19 @@ export default function RfqListPage() {
   const counts: Record<string, number> = { all: rfqs.length };
   rfqs.forEach(r => { counts[r.status] = (counts[r.status] || 0) + 1; });
 
-  async function deleteDraft(rfqId: string) {
-    if (!confirm("Delete this draft? This can't be undone.")) return;
+  // Tabs shown in the filter bar — "matched" is grouped under "matching complete" label
+  const FILTER_TABS: { value: string; label: string }[] = [
+    { value: "all",         label: "All" },
+    { value: "draft",       label: "Draft" },
+    { value: "submitted",   label: "Submitted" },
+    { value: "matched",     label: "Matching Complete" },
+    { value: "shortlisted", label: "Shortlisted" },
+    { value: "closed",      label: "Closed" },
+  ];
+
+  async function deleteRfq(rfqId: string, status: string) {
+    const label = status === "draft" ? "draft" : "RFQ";
+    if (!confirm(`Delete this ${label}? This can't be undone.`)) return;
     const supabase = createClient();
     const { error } = await supabase.from("rfqs").delete().eq("id", rfqId);
     if (!error) setRfqs(prev => prev.filter(r => r.id !== rfqId));
@@ -118,7 +135,7 @@ export default function RfqListPage() {
         <div>
           <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--text)" }}>Your RFQs</h1>
           <p style={{ fontSize: "0.9375rem", color: "var(--text-muted)", marginTop: "5px" }}>
-            {rfqs.length} total · {counts["draft"] || 0} drafts · {counts["submitted"] || 0} submitted
+            {rfqs.length} total · {counts["draft"] || 0} drafts · {(counts["matched"] || 0) + (counts["shortlisted"] || 0)} active
           </p>
         </div>
         <Link href="/dashboard/buyer/rfqs/new" style={{
@@ -150,17 +167,18 @@ export default function RfqListPage() {
 
       {/* Status filter tabs */}
       <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "20px" }}>
-        {(["all", "draft", "submitted", "matching", "shortlisted", "closed"] as FilterStatus[]).map(s => {
-          const active = filter === s;
+        {FILTER_TABS.map(({ value, label }) => {
+          const active = filter === value;
+          const count = counts[value];
           return (
-            <button key={s} type="button" onClick={() => setFilter(s)} style={{
+            <button key={value} type="button" onClick={() => setFilter(value)} style={{
               padding: "5px 12px", fontSize: "0.8125rem", fontWeight: 500,
               border: active ? "1px solid var(--brand)" : "1px solid var(--border)",
               backgroundColor: active ? "rgba(37,99,235,0.1)" : "var(--surface)",
               color: active ? "var(--brand)" : "var(--text-muted)",
-              cursor: "pointer", textTransform: "capitalize",
+              cursor: "pointer",
             }}>
-              {s === "all" ? "All" : s}{counts[s] ? ` (${counts[s]})` : ""}
+              {label}{count ? ` (${count})` : ""}
             </button>
           );
         })}
@@ -194,7 +212,7 @@ export default function RfqListPage() {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
           {filtered.map(rfq => {
-            const config  = STATUS_CONFIG[rfq.status];
+            const config  = STATUS_CONFIG[rfq.status] ?? STATUS_CONFIG.submitted;
             const isDraft = rfq.status === "draft";
             const processCount = rfq.processes_required?.length || 0;
             const certCount    = rfq.certifications_required?.length || 0;
@@ -241,19 +259,17 @@ export default function RfqListPage() {
 
                 {/* Actions */}
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
-                  {isDraft && (
-                    <button
-                      type="button"
-                      onClick={e => { e.stopPropagation(); deleteDraft(rfq.id); }}
-                      style={{
-                        padding: "3px 8px", fontSize: "0.75rem",
-                        color: "var(--red)", background: "none",
-                        border: "1px solid rgba(239,68,68,0.3)", cursor: "pointer",
-                      }}
-                    >
-                      Delete
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={e => { e.stopPropagation(); deleteRfq(rfq.id, rfq.status); }}
+                    style={{
+                      padding: "3px 8px", fontSize: "0.75rem",
+                      color: "var(--red)", background: "none",
+                      border: "1px solid rgba(239,68,68,0.3)", cursor: "pointer",
+                    }}
+                  >
+                    Delete
+                  </button>
                   <ChevronRight style={{ width: "1rem", height: "1rem", color: "var(--text-subtle)" }} />
                 </div>
               </div>

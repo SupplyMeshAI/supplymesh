@@ -103,7 +103,7 @@ export default async function SupplierDashboardPage() {
   const ctaSubtext = quotedCount > 0
     ? `${quotedCount} quote${quotedCount !== 1 ? "s" : ""} submitted`
     : shortlistedCount > 0
-    ? `${shortlistedCount} shortlisted by buyers`
+    ? `${shortlistedCount} invitation${shortlistedCount !== 1 ? "s" : ""} to quote`
     : "Review your matches and get ready to quote";
 
   return (
@@ -148,7 +148,7 @@ export default async function SupplierDashboardPage() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginBottom: "32px" }}>
         <StatCard
           label="Active RFQs" value={matchCount}
-          sub={shortlistedCount > 0 ? `${shortlistedCount} shortlisted` : undefined}
+          sub={shortlistedCount > 0 ? `${shortlistedCount} invited to quote` : undefined}
           icon={<Award style={{ width: "1.1rem", height: "1.1rem" }} />}
           accent="#3b82f6" href="/dashboard/supplier/rfqs"
         />

@@ -1,4 +1,6 @@
 // src/app/dashboard/buyer/suppliers/page.tsx
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { searchSuppliers } from "@/lib/suppliers/searchSuppliers";
@@ -15,6 +17,7 @@ type BuyerSuppliersPageProps = {
     q?: string;
     process?: string;
     certification?: string;
+    itar?: string;
     material?: string;
     industry?: string;
     state_region?: string;
@@ -33,6 +36,7 @@ export default async function BuyerSuppliersPage({ searchParams }: BuyerSupplier
     industry: params.industry,
     state_region: params.state_region,
     maxLeadTime: params.maxLeadTime,
+    itar: params.itar,
   });
 
   return (
@@ -74,7 +78,11 @@ export default async function BuyerSuppliersPage({ searchParams }: BuyerSupplier
             <option value="">All States / Regions</option>
             {STATE_REGION_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
-          <input type="number" name="maxLeadTime" defaultValue={params.maxLeadTime ?? ""} placeholder="Max lead time (days)" style={inputStyle} min={0} />
+          <select name="itar" defaultValue={params.itar ?? ""} style={inputStyle}>
+            <option value="">ITAR: Any</option>
+            <option value="true">ITAR Registered</option>
+            <option value="false">Non-ITAR Only</option>
+          </select>
         </div>
         <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
           <button type="submit" style={primaryButtonStyle}>Search</button>
@@ -99,7 +107,7 @@ export default async function BuyerSuppliersPage({ searchParams }: BuyerSupplier
         </div>
       ) : (
         <div style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "1100px" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "1100px" }} suppressHydrationWarning>
             <thead>
               <tr style={{ backgroundColor: "var(--surface2)", borderBottom: "1px solid var(--border)" }}>
                 <TableHeader>Supplier</TableHeader>

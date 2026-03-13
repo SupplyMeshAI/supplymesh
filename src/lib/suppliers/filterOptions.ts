@@ -32,7 +32,6 @@ export const CERTIFICATION_OPTIONS = [
   "AS9100",
   "ISO 13485",
   "IATF 16949",
-  "ITAR",
   "NADCAP",
 ];
 
@@ -48,18 +47,14 @@ export const INDUSTRY_OPTIONS = [
 ];
 
 export const STATE_REGION_OPTIONS = [
-  "CA",
-  "TX",
-  "AZ",
-  "WA",
-  "OR",
-  "CO",
-  "MI",
-  "OH",
-  "IL",
-  "NC",
-  "SC",
-  "FL",
-  "NY",
-  "PA",
+  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+];
+
+export const ITAR_OPTIONS = [
+  { label: "ITAR Registered", value: "true" },
+  { label: "Non-ITAR", value: "false" },
 ];

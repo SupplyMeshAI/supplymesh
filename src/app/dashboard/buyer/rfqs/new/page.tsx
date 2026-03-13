@@ -361,11 +361,17 @@ export default function NewRfqPage() {
 
     if (submitError) { setError(submitError.message); setLoading(false); return; }
 
+    // Fire match API without awaiting — the route sets status to "matching"
+    // immediately, then delays "matched" by ~15s so the progress bar has time to run.
+    // We redirect right away so the user sees the animated detail page.
     fetch("/api/rfqs/match", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ rfq_id: rfqId }),
     }).catch(err => console.error("Matching error:", err));
+
+    // Small pause so the route has time to write "matching" before we navigate
+    await new Promise(r => setTimeout(r, 600));
 
     router.push(`/dashboard/buyer/rfqs/${rfqId}?submitted=true`);
   }

@@ -1,6 +1,6 @@
 // src/lib/rfqs/types.ts
 
-export type RfqStatus = "draft" | "submitted" | "matching" | "shortlisted" | "closed" | "cancelled";
+export type RfqStatus = "draft" | "submitted" | "matched" |"matching" | "shortlisted" | "closed" | "cancelled";
 export type RfqPriority = "low" | "standard" | "urgent";
 export type MatchStatus = "matched" | "shortlisted" | "intro_sent" | "quoted" | "declined" | "awarded";
 export type RequirementFlag = "required" | "preferred";

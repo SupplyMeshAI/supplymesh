@@ -37,27 +37,87 @@ type SupplierProfile = {
   secondary_contact_name: string | null;
   secondary_contact_title: string | null;
   secondary_contact_email: string | null;
-  processes: string[] | null;
-  materials: string[] | null;
-  certifications: string[] | null;
-  industries_served: string[] | null;
-  industries_excluded: string[] | null;
-  special_processes: string[] | null;
-  special_processes_via_partners: string[] | null;
-  inspection_capabilities: string[] | null;
-  order_qty_ranges: string[] | null;
+  processes: unknown;
+  materials: unknown;
+  certifications: unknown;
+  industries_served: unknown;
+  industries_excluded: unknown;
+  special_processes: unknown;
+  special_processes_via_partners: unknown;
+  inspection_capabilities: unknown;
+  order_qty_ranges: unknown;
   proto_production_focus: string | null;
   complexity_comfort: string | null;
-  npi_milestones: string[] | null;
+  npi_milestones: unknown;
   ppap_experience: boolean | null;
   traceability: string | null;
   ear_experience: boolean | null;
-  incoterms: string[] | null;
-  payment_terms: string[] | null;
+  incoterms: unknown;
+  payment_terms: unknown;
   contract_readiness: string | null;
   references_allowed: boolean | null;
   rush_orders: boolean | null;
 };
+
+// ============================================================================
+// Helpers
+// ============================================================================
+function ensureArray(value: unknown): string[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value as string[];
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [value];
+    } catch {
+      return [value];
+    }
+  }
+  return [];
+}
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", padding: "18px 20px" }}>
+      <p style={{
+        fontSize: "0.6875rem", fontWeight: 500, color: "var(--text-muted)",
+        textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "14px",
+        fontFamily: "var(--font-mono)",
+      }}>
+        {title}
+      </p>
+      {children}
+    </div>
+  );
+}
+
+function StatRow({ label, icon, children }: { label: string; icon?: ReactNode; children: ReactNode }) {
+  return (
+    <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "0.875rem" }}>
+      {icon && <span style={{ color: "var(--text-muted)", marginTop: "1px" }}>{icon}</span>}
+      <span style={{ color: "var(--text-muted)", minWidth: "100px", flexShrink: 0 }}>{label}:</span>
+      <span style={{ fontWeight: 500, color: "var(--text)" }}>{children}</span>
+    </div>
+  );
+}
+
+function TagList({ values, color }: { values: string[]; color?: "brand" | "red" }) {
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
+      {values.map(v => (
+        <span key={v} style={{
+          fontSize: "0.75rem", padding: "3px 8px",
+          backgroundColor: color === "brand" ? "rgba(37,99,235,0.1)" : color === "red" ? "rgba(239,68,68,0.1)" : "var(--surface2)",
+          color: color === "brand" ? "#60a5fa" : color === "red" ? "var(--red)" : "var(--text-muted)",
+          border: `1px solid ${color === "brand" ? "rgba(37,99,235,0.3)" : color === "red" ? "rgba(239,68,68,0.3)" : "var(--border2)"}`,
+          fontFamily: "var(--font-mono)", whiteSpace: "nowrap" as const,
+        }}>
+          {v}
+        </span>
+      ))}
+    </div>
+  );
+}
 
 // ============================================================================
 // Page
@@ -90,8 +150,20 @@ export default async function BuyerSupplierProfilePage({ params }: PageProps) {
   if (!company) notFound();
 
   const profile = (company.supplier_profiles as unknown as SupplierProfile[])?.[0] ?? null;
-
   const isActive = profile?.is_active ?? false;
+
+  const processes = ensureArray(profile?.processes);
+  const materials = ensureArray(profile?.materials);
+  const certifications = ensureArray(profile?.certifications);
+  const industriesServed = ensureArray(profile?.industries_served);
+  const industriesExcluded = ensureArray(profile?.industries_excluded);
+  const specialProcesses = ensureArray(profile?.special_processes);
+  const specialProcessesViaPartners = ensureArray(profile?.special_processes_via_partners);
+  const inspectionCapabilities = ensureArray(profile?.inspection_capabilities);
+  const orderQtyRanges = ensureArray(profile?.order_qty_ranges);
+  const npiMilestones = ensureArray(profile?.npi_milestones);
+  const incoterms = ensureArray(profile?.incoterms);
+  const paymentTerms = ensureArray(profile?.payment_terms);
 
   return (
     <div style={{ maxWidth: "860px", margin: "0 auto" }}>
@@ -178,59 +250,51 @@ export default async function BuyerSupplierProfilePage({ params }: PageProps) {
         {/* Left column */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
 
-          {/* About */}
           {profile?.description && (
             <Section title="About">
               <p style={{ fontSize: "0.875rem", color: "var(--text)", lineHeight: 1.7 }}>{profile.description}</p>
             </Section>
           )}
 
-          {/* Processes */}
-          {profile?.processes != null && profile.processes.length > 0 && (
+          {processes.length > 0 && (
             <Section title="Processes">
-              <TagList values={profile.processes} color="brand" />
+              <TagList values={processes} color="brand" />
             </Section>
           )}
 
-          {/* Special processes */}
-          {profile?.special_processes != null && profile.special_processes.length > 0 && (
+          {specialProcesses.length > 0 && (
             <Section title="Special Processes">
-              <TagList values={profile.special_processes} />
+              <TagList values={specialProcesses} />
             </Section>
           )}
 
-          {/* Special processes via partners */}
-          {profile?.special_processes_via_partners != null && profile.special_processes_via_partners.length > 0 && (
+          {specialProcessesViaPartners.length > 0 && (
             <Section title="Via Partners">
-              <TagList values={profile.special_processes_via_partners} />
+              <TagList values={specialProcessesViaPartners} />
             </Section>
           )}
 
-          {/* Materials */}
-          {profile?.materials != null && profile.materials.length > 0 && (
+          {materials.length > 0 && (
             <Section title="Materials">
-              <TagList values={profile.materials} />
+              <TagList values={materials} />
             </Section>
           )}
 
-          {/* Inspection */}
-          {profile?.inspection_capabilities != null && profile.inspection_capabilities.length > 0 && (
+          {inspectionCapabilities.length > 0 && (
             <Section title="Inspection Capabilities">
-              <TagList values={profile.inspection_capabilities} />
+              <TagList values={inspectionCapabilities} />
             </Section>
           )}
 
-          {/* Industries served */}
-          {profile?.industries_served != null && profile.industries_served.length > 0 && (
+          {industriesServed.length > 0 && (
             <Section title="Industries Served">
-              <TagList values={profile.industries_served} />
+              <TagList values={industriesServed} />
             </Section>
           )}
 
-          {/* Industries excluded */}
-          {profile?.industries_excluded != null && profile.industries_excluded.length > 0 && (
+          {industriesExcluded.length > 0 && (
             <Section title="Industries Excluded">
-              <TagList values={profile.industries_excluded} color="red" />
+              <TagList values={industriesExcluded} color="red" />
             </Section>
           )}
         </div>
@@ -238,7 +302,6 @@ export default async function BuyerSupplierProfilePage({ params }: PageProps) {
         {/* Right column */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
 
-          {/* Company details */}
           <Section title="Company Details">
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <StatRow icon={<Building2 style={{ width: "0.875rem", height: "0.875rem" }} />} label="Company">{company.name}</StatRow>
@@ -267,11 +330,10 @@ export default async function BuyerSupplierProfilePage({ params }: PageProps) {
             </div>
           </Section>
 
-          {/* Certifications */}
-          {profile?.certifications != null && profile.certifications.length > 0 && (
+          {certifications.length > 0 && (
             <Section title="Certifications">
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                {profile.certifications.map((c: string) => (
+                {certifications.map((c: string) => (
                   <div key={c} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.875rem", color: "var(--text)" }}>
                     <CheckCircle2 style={{ width: "0.875rem", height: "0.875rem", color: "var(--green)", flexShrink: 0 }} />
                     {c}
@@ -281,40 +343,37 @@ export default async function BuyerSupplierProfilePage({ params }: PageProps) {
             </Section>
           )}
 
-          {/* Order & commercial */}
-          {(profile?.order_qty_ranges?.length || profile?.incoterms?.length || profile?.payment_terms?.length) ? (
+          {(orderQtyRanges.length > 0 || incoterms.length > 0 || paymentTerms.length > 0) && (
             <Section title="Commercial Terms">
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                {profile?.order_qty_ranges != null && profile.order_qty_ranges.length > 0 && (
+                {orderQtyRanges.length > 0 && (
                   <div>
                     <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "5px", fontFamily: "var(--font-mono)" }}>Order Quantities</p>
-                    <TagList values={profile.order_qty_ranges} />
+                    <TagList values={orderQtyRanges} />
                   </div>
                 )}
-                {profile?.incoterms != null && profile.incoterms.length > 0 && (
+                {incoterms.length > 0 && (
                   <div>
                     <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "5px", fontFamily: "var(--font-mono)" }}>Incoterms</p>
-                    <TagList values={profile.incoterms} />
+                    <TagList values={incoterms} />
                   </div>
                 )}
-                {profile?.payment_terms != null && profile.payment_terms.length > 0 && (
+                {paymentTerms.length > 0 && (
                   <div>
                     <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "5px", fontFamily: "var(--font-mono)" }}>Payment Terms</p>
-                    <TagList values={profile.payment_terms} />
+                    <TagList values={paymentTerms} />
                   </div>
                 )}
               </div>
             </Section>
-          ) : null}
+          )}
 
-          {/* NPI milestones */}
-          {profile?.npi_milestones != null && profile.npi_milestones.length > 0 && (
+          {npiMilestones.length > 0 && (
             <Section title="NPI Milestones">
-              <TagList values={profile.npi_milestones} />
+              <TagList values={npiMilestones} />
             </Section>
           )}
 
-          {/* Primary contact */}
           {profile?.primary_contact_name && (
             <Section title="Primary Contact">
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -338,7 +397,6 @@ export default async function BuyerSupplierProfilePage({ params }: PageProps) {
             </Section>
           )}
 
-          {/* Secondary contact */}
           {profile?.secondary_contact_name && (
             <Section title="Secondary Contact">
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -359,52 +417,6 @@ export default async function BuyerSupplierProfilePage({ params }: PageProps) {
 
         </div>
       </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// Helpers
-// ============================================================================
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", padding: "18px 20px" }}>
-      <p style={{
-        fontSize: "0.6875rem", fontWeight: 500, color: "var(--text-muted)",
-        textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "14px",
-        fontFamily: "var(--font-mono)",
-      }}>
-        {title}
-      </p>
-      {children}
-    </div>
-  );
-}
-
-function StatRow({ label, icon, children }: { label: string; icon?: ReactNode; children: ReactNode }) {
-  return (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "0.875rem" }}>
-      {icon && <span style={{ color: "var(--text-muted)", marginTop: "1px" }}>{icon}</span>}
-      <span style={{ color: "var(--text-muted)", minWidth: "100px", flexShrink: 0 }}>{label}:</span>
-      <span style={{ fontWeight: 500, color: "var(--text)" }}>{children}</span>
-    </div>
-  );
-}
-
-function TagList({ values, color }: { values: string[] | null; color?: "brand" | "red" }) {
-  return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
-      {(values ?? []).map(v => (
-        <span key={v} style={{
-          fontSize: "0.75rem", padding: "3px 8px",
-          backgroundColor: color === "brand" ? "rgba(37,99,235,0.1)" : color === "red" ? "rgba(239,68,68,0.1)" : "var(--surface2)",
-          color: color === "brand" ? "#60a5fa" : color === "red" ? "var(--red)" : "var(--text-muted)",
-          border: `1px solid ${color === "brand" ? "rgba(37,99,235,0.3)" : color === "red" ? "rgba(239,68,68,0.3)" : "var(--border2)"}`,
-          fontFamily: "var(--font-mono)", whiteSpace: "nowrap" as const,
-        }}>
-          {v}
-        </span>
-      ))}
     </div>
   );
 }
